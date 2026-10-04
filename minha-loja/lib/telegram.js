@@ -1,13 +1,13 @@
-const T = process.env.TELEGRAM_BOT_TOKEN;
-const C = process.env.TELEGRAM_CHAT_ID;
+const TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
 async function enviar(texto) {
-  if (!T || !C) { console.warn('Telegram nao configurado'); return null; }
+  if (!TOKEN || !CHAT_ID) { console.warn('Telegram nao configurado'); return null; }
   try {
-    const r = await fetch('https://api.telegram.org/bot' + T + '/sendMessage', {
+    const r = await fetch('https://api.telegram.org/bot' + TOKEN + '/sendMessage', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: C, text: texto, parse_mode: 'HTML' })
+      body: JSON.stringify({ chat_id: CHAT_ID, text: texto, parse_mode: 'HTML' })
     });
     if (!r.ok) { console.error('Telegram erro:', await r.text()); return null; }
     console.log('Notificacao Telegram enviada');
@@ -32,11 +32,14 @@ async function notificarPedido(p, itens) {
     '<b>Total:</b> R$ ' + (p.total_centavos / 100).toFixed(2),
     '',
     '<b>Cliente:</b> ' + p.cliente_nome,
+    '<b>CPF:</b> ' + (p.cpf || '-'),
     '<b>Telefone:</b> ' + p.cliente_telefone,
     '<b>E-mail:</b> ' + p.cliente_email,
     '',
     '<b>Entregar em:</b>',
-    p.endereco
+    (p.rua || '') + ', ' + (p.numero || '') + (p.complemento ? ' - ' + p.complemento : ''),
+    (p.bairro || '') + ' — ' + (p.cidade || '') + '/' + (p.estado || ''),
+    'CEP: ' + (p.cep || '')
   ].join('\n');
 
   return await enviar(txt);

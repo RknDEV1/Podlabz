@@ -140,7 +140,7 @@ if(fC)fC.onsubmit=async function(e){
     var d=await r.json();if(!r.ok)throw new Error(d.erro||'Erro');
     localStorage.removeItem('carrinho');carrinho.length=0;atualizarQtd();
     var m=document.getElementById('modal');if(m)m.classList.add('escondido');
-    var qr=document.getElementById('qrcode-img');if(qr)qr.src=d.qrCodeBase64?'data:image/png;base64,'+d.qrCodeBase64:'';
+    var qr=document.getElementById('qrcode-img');if(qr)qr.src=d.qrCodeBase64?(d.qrCodeBase64.indexOf('data:')===0?d.qrCodeBase64:'data:image/png;base64,'+d.qrCodeBase64):'';
     var px=document.getElementById('pix-copia-cola');if(px)px.value=d.pixCopiaECola||'';
     var mp=document.getElementById('modal-pix');if(mp)mp.classList.remove('escondido');
     if(pollingId)clearInterval(pollingId);
@@ -157,3 +157,42 @@ if(bCp)bCp.onclick=async function(){var t=document.getElementById('pix-copia-col
 carregarCategorias();
 carregarProdutos();
 atualizarQtd();
+
+// Busca CEP automaticamente
+document.addEventListener('input', async function(e) {
+  if (e.target.name !== 'cep') return;
+  var cep = e.target.value.replace(/\D/g, '');
+  if (cep.length !== 8) return;
+  try {
+    var r = await fetch('https://viacep.com.br/ws/' + cep + '/json/');
+    var d = await r.json();
+    if (d.erro) return;
+    var form = e.target.closest('form');
+    if (form.rua) form.rua.value = d.logradouro || '';
+    if (form.bairro) form.bairro.value = d.bairro || '';
+    if (form.cidade) form.cidade.value = d.localidade || '';
+    if (form.estado) form.estado.value = d.uf || '';
+    if (form.numero) form.numero.focus();
+    console.log('CEP preenchido');
+  } catch(err) { console.error('Erro CEP:', err.message); }
+});
+
+// Máscara de CPF
+function mascaraCPF(v) {
+  v = v.replace(/\D/g, '').slice(0, 11);
+  v = v.replace(/(\d{3})(\d)/, '$1.$2');
+  v = v.replace(/(\d{3})(\d)/, '$1.$2');
+  v = v.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+  return v;
+}
+
+document.addEventListener('input', function(e) {
+  if (e.target.name === 'cpf') {
+    var pos = e.target.selectionStart;
+    var antes = e.target.value.length;
+    e.target.value = mascaraCPF(e.target.value);
+    var depois = e.target.value.length;
+    e.target.setSelectionRange(pos + (depois - antes), pos + (depois - antes));
+  }
+});
+

@@ -31,11 +31,18 @@
       <h2>Seu pedido</h2>
       <div id="itens-carrinho"></div>
       <p class="total">Total: <strong id="total">R$ 0,00</strong></p>
-      <form id="form-checkout">
+                  <form id="form-checkout">
         <input name="nome" placeholder="Nome completo" required>
+        <input name="cpf" placeholder="CPF (só números)" required maxlength="14" inputmode="numeric">
+        <input name="telefone" placeholder="WhatsApp (ex: 11999999999)" required inputmode="numeric">
         <input name="email" type="email" placeholder="E-mail" required>
-        <input name="telefone" placeholder="WhatsApp (ex: 11999999999)" required>
-        <input name="endereco" placeholder="Endereço completo de entrega" required>
+        <input name="cep" placeholder="CEP (só números)" required maxlength="9" inputmode="numeric">
+        <input name="rua" placeholder="Rua / Avenida" required>
+        <input name="numero" placeholder="Número" required>
+        <input name="complemento" placeholder="Complemento (apto, bloco) — opcional">
+        <input name="bairro" placeholder="Bairro" required>
+        <input name="cidade" placeholder="Cidade" required>
+        <input name="estado" placeholder="Estado (ex: GO, SP)" required maxlength="2">
         <button type="submit" class="btn-pagar">Gerar Pix</button>
       </form>
       <button id="fechar" class="btn-secundario">Fechar</button>

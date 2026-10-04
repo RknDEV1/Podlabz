@@ -13,6 +13,7 @@ app.post('/webhook/yuvexpay',
   express.raw({ type: 'application/json' }),
   async (req, res) => {
     const rawBody = req.body.toString('utf8');
+    console.log('DEBUG_WEBHOOK headers:', JSON.stringify(req.headers, null, 2));
     const secret = process.env.YUVEX_WEBHOOK_SECRET;
     const ts = req.headers['x-webhook-timestamp'];
     const sig = req.headers['x-webhook-signature'];
@@ -115,7 +116,7 @@ app.get('/api/produtos/:id', (req, res) => {
 app.post('/api/pedidos', async (req, res) => {
   try {
     const { cliente, itens } = req.body;
-    if (!cliente?.nome || !cliente?.email || !cliente?.telefone || !cliente?.endereco)
+    if (!cliente?.nome || !cliente?.email || !cliente?.telefone || !cliente?.cep || !cliente?.rua || !cliente?.numero || !cliente?.cidade)
       return res.status(400).json({ erro: 'Dados do cliente incompletos.' });
     if (!Array.isArray(itens) || itens.length === 0)
       return res.status(400).json({ erro: 'Carrinho vazio.' });
@@ -142,10 +143,11 @@ app.post('/api/pedidos', async (req, res) => {
       total += p.preco_centavos * qtd;
     }
 
+    const enderecoCompleto = [cliente.rua, cliente.numero, cliente.complemento, cliente.bairro, cliente.cidade + '-' + cliente.estado, 'CEP ' + cliente.cep].filter(Boolean).join(', ');
     const info = db.prepare(`
-      INSERT INTO pedidos (cliente_nome, cliente_email, cliente_telefone, endereco, total_centavos)
-      VALUES (?, ?, ?, ?, ?)
-    `).run(cliente.nome, cliente.email, cliente.telefone, cliente.endereco, total);
+      INSERT INTO pedidos (cliente_nome, cliente_email, cliente_telefone, endereco, total_centavos, cpf, cep, rua, numero, complemento, bairro, cidade, estado)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(cliente.nome, cliente.email, cliente.telefone, enderecoCompleto, total, cliente.cpf||null, cliente.cep||null, cliente.rua||null, cliente.numero||null, cliente.complemento||null, cliente.bairro||null, cliente.cidade||null, cliente.estado||null);
 
     const pedidoId = info.lastInsertRowid;
 
