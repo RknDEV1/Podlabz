@@ -1,0 +1,207 @@
+require('dotenv').config();
+const express = require('express');
+const path = require('path');
+const crypto = require('crypto');
+const db = require('./db');
+const { criarCobranca, consultarPagamento, simularPagamento } = require('./lib/pagamento');
+const { notificarPedido, enviar } = require('./lib/whatsapp');
+
+const app = express();
+
+/* ---------- WEBHOOK (raw body) ---------- */
+app.post('/webhook/yuvexpay',
+  express.raw({ type: 'application/json' }),
+  async (req, res) => {
+    const rawBody = req.body.toString('utf8');
+    const secret = process.env.YUVEX_WEBHOOK_SECRET;
+    const ts = req.headers['x-webhook-timestamp'];
+    const sig = req.headers['x-webhook-signature'];
+
+    if (!ts || !sig) return res.status(401).send('Missing signature');
+
+    const drift = Math.abs(Math.floor(Date.now() / 1000) - parseInt(ts, 10));
+    if (drift > 300) return res.status(401).send('Timestamp too old');
+
+    const expected = 'v1=' + crypto
+      .createHmac('sha256', secret)
+      .update(`${ts}.${rawBody}`)
+      .digest('hex');
+
+    const a = Buffer.from(sig);
+    const b = Buffer.from(expected);
+    if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) {
+      return res.status(401).send('Invalid signature');
+    }
+
+    res.sendStatus(200);
+
+    try {
+      const eventType = req.headers['x-webhook-event'];
+      const body = JSON.parse(rawBody);
+      if (eventType !== 'PAYMENT_PAID') return;
+
+      const paymentId = body.id;
+      const pedido = db.prepare('SELECT * FROM pedidos WHERE yuvex_payment_id = ?').get(paymentId);
+      if (!pedido || pedido.status === 'pago') return;
+
+      db.prepare(`UPDATE pedidos SET status='pago', pago_em=datetime('now') WHERE id=?`).run(pedido.id);
+
+      const itens = db.prepare('SELECT * FROM pedido_itens WHERE pedido_id = ?').all(pedido.id);
+      const baixar = db.prepare('UPDATE produtos SET estoque = estoque - ? WHERE id = ?');
+      for (const i of itens) baixar.run(i.quantidade, i.produto_id);
+
+      await notificarPedido({ ...pedido, status: 'pago' }, itens);
+    } catch (err) {
+      console.error('Erro no webhook:', err);
+    }
+  }
+);
+
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
+
+/* ---------- Produtos / Catálogo ---------- */
+app.get('/api/produtos', (_req, res) => {
+  res.json(db.prepare('SELECT * FROM produtos').all());
+});
+
+app.get('/api/categorias', (_req, res) => {
+  res.json(db.prepare(
+    'SELECT categoria, COUNT(*) AS total FROM produtos GROUP BY categoria ORDER BY categoria'
+  ).all());
+});
+
+app.get('/api/catalogo', (req, res) => {
+  const { q, categoria, ordem, destaque } = req.query;
+  let sql = 'SELECT * FROM produtos WHERE 1=1';
+  const params = [];
+
+  if (q) { sql += ' AND (nome LIKE ? OR descricao LIKE ?)'; params.push(`%${q}%`, `%${q}%`); }
+  if (categoria && categoria !== 'Todas') { sql += ' AND categoria = ?'; params.push(categoria); }
+  if (destaque === '1') sql += ' AND destaque = 1';
+
+  const ordens = {
+    'recentes': 'id DESC',
+    'menor-preco': 'preco_centavos ASC',
+    'maior-preco': 'preco_centavos DESC',
+    'nome': 'nome ASC'
+  };
+  sql += ' ORDER BY ' + (ordens[ordem] || 'id DESC');
+
+  res.json(db.prepare(sql).all(...params));
+});
+
+/* ---------- Sabores do produto (ANTES da rota :id) ---------- */
+app.get('/api/produtos/:id/sabores', (req, res) => {
+  const p = db.prepare('SELECT sabores FROM produtos WHERE id = ?').get(req.params.id);
+  if (!p) return res.status(404).json({ erro: 'Produto não encontrado.' });
+  const lista = p.sabores ? p.sabores.split(',').map(s => s.trim()).filter(Boolean) : [];
+  res.json({ sabores: lista });
+});
+
+app.get('/api/produtos/:id', (req, res) => {
+  const p = db.prepare('SELECT * FROM produtos WHERE id = ?').get(req.params.id);
+  if (!p) return res.status(404).json({ erro: 'Produto não encontrado.' });
+  res.json(p);
+});
+
+/* ---------- Pedidos ---------- */
+app.post('/api/pedidos', async (req, res) => {
+  try {
+    const { cliente, itens } = req.body;
+    if (!cliente?.nome || !cliente?.email || !cliente?.telefone || !cliente?.endereco)
+      return res.status(400).json({ erro: 'Dados do cliente incompletos.' });
+    if (!Array.isArray(itens) || itens.length === 0)
+      return res.status(400).json({ erro: 'Carrinho vazio.' });
+
+    const ids = itens.map(i => i.produtoId);
+    const placeholders = ids.map(() => '?').join(',');
+    const produtos = db.prepare(`SELECT * FROM produtos WHERE id IN (${placeholders})`).all(...ids);
+    const mapa = Object.fromEntries(produtos.map(p => [p.id, p]));
+
+    const itensNormalizados = [];
+    let total = 0;
+
+    for (const item of itens) {
+      const p = mapa[item.produtoId];
+      if (!p) return res.status(400).json({ erro: `Produto ${item.produtoId} inválido.` });
+      const qtd = Math.max(1, parseInt(item.quantidade) || 1);
+      if (p.estoque < qtd)
+        return res.status(400).json({ erro: `Estoque insuficiente para ${p.nome}.` });
+
+      itensNormalizados.push({
+        produto_id: p.id, nome: p.nome,
+        preco_centavos: p.preco_centavos, quantidade: qtd
+      });
+      total += p.preco_centavos * qtd;
+    }
+
+    const info = db.prepare(`
+      INSERT INTO pedidos (cliente_nome, cliente_email, cliente_telefone, endereco, total_centavos)
+      VALUES (?, ?, ?, ?, ?)
+    `).run(cliente.nome, cliente.email, cliente.telefone, cliente.endereco, total);
+
+    const pedidoId = info.lastInsertRowid;
+
+    const inserirItem = db.prepare(`
+      INSERT INTO pedido_itens (pedido_id, produto_id, nome, preco_centavos, quantidade)
+      VALUES (?, ?, ?, ?, ?)
+    `);
+    const inserirVarios = db.transaction(lista => {
+      for (const i of lista)
+        inserirItem.run(pedidoId, i.produto_id, i.nome, i.preco_centavos, i.quantidade);
+    });
+    inserirVarios(itensNormalizados);
+
+    const pagamento = await criarCobranca({ pedidoId, itens: itensNormalizados, cliente });
+
+    db.prepare('UPDATE pedidos SET yuvex_payment_id = ? WHERE id = ?')
+      .run(pagamento.id, pedidoId);
+
+    res.json({
+      pedidoId,
+      paymentId: pagamento.id,
+      pixCopiaECola: pagamento.methodData?.pixCopyPaste || null,
+      qrCodeBase64: pagamento.methodData?.qrCodeBase64 || null
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ erro: 'Falha ao criar pedido: ' + err.message });
+  }
+});
+
+app.get('/api/pedidos/:id', (req, res) => {
+  const pedido = db.prepare('SELECT id, status, total_centavos FROM pedidos WHERE id = ?')
+    .get(req.params.id);
+  if (!pedido) return res.status(404).json({ erro: 'Pedido não encontrado.' });
+  res.json(pedido);
+});
+
+app.post('/api/simular/:pedidoId', async (req, res) => {
+  try {
+    const pedido = db.prepare('SELECT * FROM pedidos WHERE id = ?').get(req.params.pedidoId);
+    if (!pedido) return res.status(404).json({ erro: 'Pedido não encontrado.' });
+
+    await simularPagamento(pedido.yuvex_payment_id, 'PAID');
+
+    db.prepare(`UPDATE pedidos SET status='pago', pago_em=datetime('now') WHERE id=?`)
+      .run(pedido.id);
+
+    const itens = db.prepare('SELECT * FROM pedido_itens WHERE pedido_id = ?').all(pedido.id);
+    const baixar = db.prepare('UPDATE produtos SET estoque = estoque - ? WHERE id = ?');
+    for (const i of itens) baixar.run(i.quantidade, i.produto_id);
+
+    await notificarPedido({ ...pedido, status: 'pago' }, itens);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ erro: err.message });
+  }
+});
+
+app.get('/api/testar-whatsapp', async (_req, res) => {
+  const r = await enviar('✅ Teste de notificação da Minha Loja funcionando!');
+  res.json({ ok: !!r });
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`🚀 Loja rodando em http://localhost:${PORT}`));

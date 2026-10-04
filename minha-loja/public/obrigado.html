@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="UTF-8"><title>Pedido confirmado</title>
+<link rel="stylesheet" href="style.css"></head>
+<body style="text-align:center;padding:4rem 1rem">
+  <h1>✅ Pedido confirmado!</h1><p id="status">Verificando...</p>
+  <a href="/">Voltar para a loja</a>
+  <script>
+    const id = new URLSearchParams(location.search).get('pedido');
+    fetch(`/api/pedidos/${id}`).then(r => r.json()).then(d => {
+      document.getElementById('status').textContent = `Pedido #${d.id} — ${d.status}`;
+    });
+  </script>
+</body>
+</html>

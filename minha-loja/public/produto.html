@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0a0a0a">
+<title>Produto — Podlabz</title>
+<link rel="stylesheet" href="style.css">
+<style>
+.produto-wrap{max-width:900px;margin:2rem auto;padding:1rem;display:grid;gap:2rem;grid-template-columns:1fr 1fr}
+@media(max-width:700px){.produto-wrap{grid-template-columns:1fr}}
+.produto-wrap img{width:100%;border-radius:12px;background:var(--bg-3)}
+.produto-info .cat{color:var(--texto-fraco);text-transform:uppercase;font-size:.8rem;letter-spacing:1px}
+.produto-info h1{margin:.25rem 0 .5rem;color:var(--branco)}
+.produto-info .preco{font-size:2rem;font-weight:800;margin:1rem 0;color:var(--branco)}
+.produto-info .desc{color:var(--texto-suave);line-height:1.6;margin-bottom:1rem}
+.qtd-ctrl{display:flex;align-items:center;gap:1rem;margin:1rem 0}
+.qtd-ctrl button{width:40px;height:40px;border-radius:8px;border:1px solid var(--borda);background:var(--bg-3);color:var(--texto);cursor:pointer;font-size:1.2rem}
+.qtd-ctrl span{font-size:1.2rem;min-width:30px;text-align:center;color:var(--branco)}
+.voltar{display:inline-block;padding:1rem 2rem;color:var(--texto-suave);text-decoration:none}
+.sabores-titulo{font-weight:700;color:var(--branco);margin-bottom:.75rem;font-size:1rem}
+.sabores-lista{display:grid;gap:.5rem;margin-bottom:1.5rem}
+.sabor-item{display:flex;align-items:center;gap:.75rem;padding:.85rem 1rem;background:var(--bg-3);border:1px solid var(--borda);border-radius:10px;cursor:pointer;font-size:.9rem;color:var(--texto-suave)}
+.sabor-item:hover{border-color:var(--borda-forte);color:var(--texto)}
+.sabor-item.selecionado{border-color:var(--branco);background:rgba(255,255,255,.08);color:var(--branco);font-weight:600}
+.sabor-item::before{content:'';width:18px;height:18px;min-width:18px;border:2px solid var(--borda-forte);border-radius:50%}
+.sabor-item.selecionado::before{background:var(--branco);border-color:var(--branco);box-shadow:inset 0 0 0 3px var(--bg-2)}
+.aviso-sabor{color:var(--vermelho);font-size:.85rem;margin-bottom:1rem;display:none}
+.aviso-sabor.visivel{display:block}
+</style>
+</head>
+<body>
+<header>
+<h1 class="logo-texto" onclick="location.href='/'">PODLABZ</h1>
+<button id="btn-carrinho">🛒 <span id="qtd-carrinho">0</span></button>
+</header>
+
+<a href="/" class="voltar">← Voltar ao catálogo</a>
+<div class="produto-wrap" id="produto"></div>
+
+<script>
+var carrinho = JSON.parse(localStorage.getItem('carrinho')||'[]');
+function brl(c){return (c/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});}
+function salvar(){localStorage.setItem('carrinho',JSON.stringify(carrinho));}
+function atualizarQtd(){document.getElementById('qtd-carrinho').textContent=carrinho.reduce(function(s,i){return s+i.quantidade;},0);}
+
+var qtd=1;
+var produto=null;
+var saborSelecionado=null;
+var id=new URLSearchParams(location.search).get('id');
+
+async function carregar(){
+  var res=await fetch('/api/produtos/'+id);
+  if(!res.ok){document.getElementById('produto').innerHTML='<p>Produto não encontrado.</p>';return;}
+  produto=await res.json();
+  render();
+}
+
+function render(){
+  var lista=(produto.sabores||'').split(',').map(function(s){return s.trim();}).filter(Boolean);
+  var temSabores=lista.length>0;
+  var html='<div><img src="'+(produto.imagem||'')+'" alt="'+produto.nome+'" onerror="this.style.background=\'var(--bg-3)\';this.src=\'\'"></div>';
+  html+='<div class="produto-info">';
+  html+='<div class="cat">'+(produto.categoria||'Geral')+'</div>';
+  html+='<h1>'+produto.nome+'</h1>';
+  html+='<div class="preco">'+brl(produto.preco_centavos)+'</div>';
+  html+='<p class="desc">'+(produto.descricao||'')+'</p>';
+  html+='<p style="color:var(--texto-fraco)"><small>Estoque: '+produto.estoque+' unidades</small></p>';
+
+  if(temSabores){
+    html+='<div style="margin:1.5rem 0"><div class="sabores-titulo">🍓 Escolha o sabor</div>';
+    html+='<div class="sabores-lista" id="sabores-lista">';
+    lista.forEach(function(s){
+      html+='<div class="sabor-item" data-sabor="'+s.replace(/"/g,'&quot;')+'">'+s+'</div>';
+    });
+    html+='</div><p class="aviso-sabor" id="aviso-sabor">⚠️ Escolha um sabor antes de adicionar</p></div>';
+  }
+
+  if(produto.estoque>0){
+    html+='<div class="qtd-ctrl"><button id="menos">−</button><span id="qtd-view">1</span><button id="mais">+</button></div>';
+    html+='<button class="btn-pagar" id="add" style="max-width:100%">Adicionar ao carrinho</button>';
+  }else{
+    html+='<p style="color:var(--vermelho);font-weight:700">Esgotado</p>';
+  }
+
+  html+='</div>';
+  document.getElementById('produto').innerHTML=html;
+
+  if(temSabores){
+    document.querySelectorAll('.sabor-item').forEach(function(el){
+      el.onclick=function(){
+        document.querySelectorAll('.sabor-item').forEach(function(x){x.classList.remove('selecionado');});
+        el.classList.add('selecionado');
+        saborSelecionado=el.dataset.sabor;
+        var av=document.getElementById('aviso-sabor');if(av)av.classList.remove('visivel');
+      };
+    });
+  }
+
+  if(produto.estoque>0){
+    document.getElementById('menos').onclick=function(){if(qtd>1)qtd--;document.getElementById('qtd-view').textContent=qtd;};
+    document.getElementById('mais').onclick=function(){if(qtd<produto.estoque)qtd++;document.getElementById('qtd-view').textContent=qtd;};
+    document.getElementById('add').onclick=function(){
+      if(temSabores&&!saborSelecionado){
+        var av=document.getElementById('aviso-sabor');
+        if(av){av.classList.add('visivel');document.getElementById('sabores-lista').scrollIntoView({behavior:'smooth',block:'center'});}
+        return;
+      }
+      var item=carrinho.find(function(i){return i.produtoId===produto.id&&(i.sabor||null)===(saborSelecionado||null);});
+      if(item)item.quantidade+=qtd;
+      else carrinho.push({produtoId:produto.id,sabor:saborSelecionado||null,quantidade:qtd});
+      salvar();atualizarQtd();
+      var b=document.getElementById('add');
+      b.textContent='✅ Adicionado!';
+      setTimeout(function(){b.textContent='Adicionar ao carrinho';},1200);
+    };
+  }
+}
+
+document.getElementById('btn-carrinho').onclick=function(){location.href='/';};
+carregar();
+atualizarQtd();
+</script>
+</body>
+</html>
