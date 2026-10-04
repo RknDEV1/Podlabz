@@ -4,7 +4,7 @@ const path = require('path');
 const crypto = require('crypto');
 const db = require('./db');
 const { criarCobranca, consultarPagamento, simularPagamento } = require('./lib/pagamento');
-const { notificarPedido, enviar } = require('./lib/whatsapp');
+const { notificarPedido, enviar } = require('./lib/telegram');
 
 const app = express();
 
