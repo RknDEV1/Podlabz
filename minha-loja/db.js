@@ -81,9 +81,31 @@ if (total === 0) {
     ['Black Sheep 55K', '55.000 puffs · 8 sabores', 'Outras Marcas', 26000, 5, 1],
   ];
 
-  for (const [nome, desc, cat, preco, estoque, destaque] of produtos) {
+  const IMAGENS = {
+  'Ignite V Nano':   'https://i.ibb.co/tPJtntMj/f5fcf823-557a-4275-b1bd-bc7c0db4258c.jpg',
+  'Ignite V35':      'https://i.ibb.co/cK3Y3S8W/2f5f7700-4477-4f6a-b4bd-62ca8d4fea74.jpg',
+  'Ignite V55':      'https://i.ibb.co/rGjtfXsG/228365f7-0740-4272-b287-47188a1a7d49.jpg',
+  'Ignite V80':      'https://i.ibb.co/SwkvzDWv/7af90e8a-e59c-43dd-8122-ddd7344400a2.jpg',
+  'Ignite V155':     'https://i.ibb.co/FkbyvwXG/5eaf2a4d-f473-4248-860a-b5770584be0c.jpg',
+  'Ignite V40':      'https://i.ibb.co/BVb832gJ/9d8e2963-7105-419f-9499-b4224bb75f86.jpg',
+  'Ignite V300':     'https://i.ibb.co/5xBfCngt/16ce425e-4d69-40f6-a65c-756a3ca89ac3.jpg',
+  'Ignite V400 Mix': 'https://i.ibb.co/Dgscv6j2/4dd8a18a-19be-4f4c-a763-7ea4a7781c2d.jpg',
+  'Ignite V500':     'https://i.ibb.co/FLSv7JLS/4a769a89-4e09-4a27-ba0c-031af56ab931.jpg',
+  'Elfbar BC15K':    'https://i.ibb.co/9k03VS9g/5bd8aa95-9482-4716-a723-916628d83202.jpg',
+  'Elfbar GH':       'https://i.ibb.co/VcmkVYgp/d88a1cbc-5314-4b5d-b338-27ae6cee8686.jpg',
+  'Elfbar TE':       'https://i.ibb.co/xKfmQywQ/d6afbfff-feb5-4d99-9a65-db80485a66bb.jpg',
+  'Elfbar Duke':     'https://i.ibb.co/7Jsppzw5/03ca4d8b-e1a8-48a1-a482-33ec8889567e.jpg',
+  'Elfbar 40K':      'https://i.ibb.co/pBx0JSq7/1801517f-3259-4acf-ad06-86dc0b4832d9.jpg',
+  'Elfbar BC45K':    'https://i.ibb.co/cc2qN9RK/8124e06f-f090-48d0-9caa-a5e46c42cd0b.jpg',
+  'Lost Mary Mixer': 'https://i.ibb.co/Y4mXkWG7/6d07a29f-2128-4b6e-9714-43b12df95109.jpg',
+  'HOD':             'https://i.ibb.co/1GtzgK72/c5e8d3b2-81a8-470e-aeb2-444377cc431b.jpg',
+  'Rabbeats RC':     'https://i.ibb.co/HDL1BmJ8/4297848e-f924-4c59-9724-8de11330b476.jpg',
+  'Black Sheep 55K': 'https://i.ibb.co/nNK3ycYD/a5c8a819-a086-4823-9d59-1f6e8f57ff23.jpg'
+};
+
+for (const [nome, desc, cat, preco, estoque, destaque] of produtos) {
     const slug = nome.toLowerCase().replace(/[^a-z0-9]/g, '-');
-    inserir.run(nome, desc, cat, preco, `https://picsum.photos/seed/${slug}/600/600`, estoque, destaque, null);
+    inserir.run(nome, desc, cat, preco, IMAGENS[nome] || `https://picsum.photos/seed/${slug}/600/600`, estoque, destaque, null);
   }
 }
 
