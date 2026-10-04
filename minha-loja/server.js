@@ -60,6 +60,12 @@ app.post('/webhook/yuvexpay',
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.get('/', (_req, res) => {
+  res.type('html').sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+
+
 /* ---------- Produtos / Catálogo ---------- */
 app.get('/api/produtos', (_req, res) => {
   res.json(db.prepare('SELECT * FROM produtos').all());
@@ -202,6 +208,72 @@ app.get('/api/testar-whatsapp', async (_req, res) => {
   const r = await enviar('✅ Teste de notificação da Minha Loja funcionando!');
   res.json({ ok: !!r });
 });
+
+
+/* ---------- ADMIN ---------- */
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'podlabz123';
+const adminTokens = new Set();
+
+function authAdmin(req, res, next) {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token || !adminTokens.has(token)) return res.status(401).json({ erro: 'Não autorizado' });
+  next();
+}
+
+app.post('/api/admin/login', (req, res) => {
+  if (req.body.senha !== ADMIN_PASSWORD) return res.status(401).json({ erro: 'Senha incorreta' });
+  const token = crypto.randomBytes(24).toString('hex');
+  adminTokens.add(token);
+  res.json({ token });
+});
+
+app.post('/api/admin/logout', authAdmin, (req, res) => {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  adminTokens.delete(token);
+  res.json({ ok: true });
+});
+
+app.get('/api/admin/pedidos', authAdmin, (_req, res) => {
+  res.json(db.prepare('SELECT * FROM pedidos ORDER BY id DESC').all());
+});
+
+app.get('/api/admin/pedidos/:id', authAdmin, (req, res) => {
+  const p = db.prepare('SELECT * FROM pedidos WHERE id = ?').get(req.params.id);
+  if (!p) return res.status(404).json({ erro: 'Pedido não encontrado' });
+  p.itens = db.prepare('SELECT * FROM pedido_itens WHERE pedido_id = ?').all(req.params.id);
+  res.json(p);
+});
+
+app.patch('/api/admin/pedidos/:id', authAdmin, (req, res) => {
+  db.prepare('UPDATE pedidos SET status = ? WHERE id = ?').run(req.body.status, req.params.id);
+  res.json({ ok: true });
+});
+
+app.get('/api/admin/produtos', authAdmin, (_req, res) => {
+  res.json(db.prepare('SELECT * FROM produtos ORDER BY id DESC').all());
+});
+
+app.post('/api/admin/produtos', authAdmin, (req, res) => {
+  const b = req.body;
+  const info = db.prepare('INSERT INTO produtos (nome, descricao, categoria, preco_centavos, estoque, imagem, sabores, destaque) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
+    .run(b.nome, b.descricao||'', b.categoria||'Geral', b.preco_centavos||0, b.estoque||0, b.imagem||'', b.sabores||'', b.destaque||0);
+  res.json({ id: info.lastInsertRowid });
+});
+
+app.patch('/api/admin/produtos/:id', authAdmin, (req, res) => {
+  const b = req.body;
+  db.prepare('UPDATE produtos SET nome=?, descricao=?, categoria=?, preco_centavos=?, estoque=?, imagem=?, sabores=?, destaque=? WHERE id=?')
+    .run(b.nome, b.descricao, b.categoria, b.preco_centavos, b.estoque, b.imagem, b.sabores, b.destaque, req.params.id);
+  res.json({ ok: true });
+});
+
+app.delete('/api/admin/produtos/:id', authAdmin, (req, res) => {
+  db.prepare('DELETE FROM produtos WHERE id = ?').run(req.params.id);
+  res.json({ ok: true });
+});
+
+
+app.get('/admin', (_req, res) => res.type('html').sendFile(path.join(__dirname, 'public', 'admin.html')));
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Loja rodando em http://localhost:${PORT}`));

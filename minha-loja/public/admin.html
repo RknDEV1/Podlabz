@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0a0a0a">
+<title>Admin — Podlabz</title>
+<style>
+*{box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif;margin:0;padding:0}
+:root{--bg:#0a0a0a;--bg2:#141414;--bg3:#1a1a1a;--borda:#2a2a2a;--bf:#3a3a3a;--txt:#f5f5f5;--txts:#a0a0a0;--txtf:#6b6b6b;--br:#fff;--verde:#25d366;--verm:#e53935;--azul:#2196f3;--amar:#ffc107}
+body{background:var(--bg);color:var(--txt);min-height:100vh;-webkit-font-smoothing:antialiased}
+.escondido{display:none!important}
+
+/* LOGIN */
+.tela-login{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:1rem}
+.login-box{background:var(--bg2);border:1px solid var(--borda);border-radius:16px;padding:2rem;max-width:400px;width:100%}
+.login-logo{font-size:1.5rem;font-weight:900;font-style:italic;color:var(--br);letter-spacing:-1px;margin-bottom:.25rem}
+.login-logo span{font-size:.65rem;opacity:.5;font-style:normal;font-weight:600;letter-spacing:2px;vertical-align:middle;margin-left:.5rem}
+.login-box h2{font-size:.95rem;color:var(--txts);font-weight:500;margin-bottom:1.5rem}
+.login-box label{font-size:.7rem;color:var(--txts);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:.4rem;font-weight:700}
+.login-box input{width:100%;padding:.85rem 1rem;background:var(--bg3);border:1px solid var(--borda);border-radius:10px;color:var(--txt);outline:none;font-size:1rem}
+.login-box input:focus{border-color:var(--br)}
+#erro-login{color:var(--verm);font-size:.85rem;margin-top:.75rem;min-height:1.2rem}
+
+/* HEADER */
+header{position:sticky;top:0;z-index:5;display:flex;justify-content:space-between;align-items:center;padding:.85rem 1.25rem;background:var(--bg2);border-bottom:1px solid var(--borda)}
+.logo-header{font-size:1.1rem;font-weight:900;font-style:italic;color:var(--br);cursor:pointer;letter-spacing:-.5px}
+.logo-header span{font-size:.6rem;opacity:.5;font-style:normal;font-weight:600;letter-spacing:2px;margin-left:.4rem}
+#btn-sair{padding:.5rem .9rem;background:transparent;border:1px solid var(--borda);color:var(--txts);border-radius:8px;cursor:pointer;font-size:.8rem;font-weight:600}
+#btn-sair:hover{border-color:var(--verm);color:var(--verm)}
+
+/* TABS */
+.tabs{display:flex;gap:.25rem;padding:0 1rem;border-bottom:1px solid var(--borda);background:var(--bg2);overflow-x:auto}
+.tabs button{background:transparent;border:0;color:var(--txts);padding:.9rem 1.1rem;cursor:pointer;font-weight:700;font-size:.85rem;border-bottom:2px solid transparent;white-space:nowrap}
+.tabs button.ativo{color:var(--br);border-bottom-color:var(--br)}
+
+main{padding:1.25rem;max-width:1000px;margin:0 auto}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.75rem;margin-bottom:1.25rem}
+.stat{background:var(--bg2);border:1px solid var(--borda);border-radius:12px;padding:1rem}
+.stat-num{font-size:1.4rem;font-weight:800;color:var(--br);line-height:1.2}
+.stat-lbl{font-size:.7rem;color:var(--txts);text-transform:uppercase;letter-spacing:1px;margin-top:.35rem;font-weight:600}
+
+/* FILTROS */
+.filtros-admin{display:flex;gap:.5rem;margin-bottom:1.25rem;flex-wrap:wrap}
+.filtros-admin input,.filtros-admin select{flex:1;min-width:140px;padding:.75rem 1rem;background:var(--bg3);border:1px solid var(--borda);border-radius:10px;color:var(--txt);outline:none;font-size:.9rem}
+.filtros-admin input:focus,.filtros-admin select:focus{border-color:var(--br)}
+.btn-primario{padding:.75rem 1.1rem;background:var(--br);color:#000;border:0;border-radius:10px;font-weight:700;font-size:.85rem;cursor:pointer;white-space:nowrap}
+.btn-primario:hover{opacity:.85}
+
+/* CARDS PEDIDO */
+.card-pedido{background:var(--bg2);border:1px solid var(--borda);border-radius:12px;padding:1.1rem;margin-bottom:.85rem}
+.card-pedido-top{display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;margin-bottom:.75rem}
+.pedido-id{font-size:.7rem;color:var(--txtf);font-weight:700;letter-spacing:1px}
+.pedido-cliente{font-weight:700;color:var(--br);font-size:1rem;margin:.15rem 0}
+.pedido-contato{font-size:.8rem;color:var(--txts)}
+.pedido-direita{text-align:right;flex-shrink:0}
+.pedido-valor{font-weight:800;font-size:1.1rem;color:var(--br);margin-top:.35rem}
+.card-pedido-meta{font-size:.82rem;color:var(--txts);line-height:1.6;padding-top:.6rem;border-top:1px solid var(--borda)}
+.card-pedido-meta strong{color:var(--txtf);font-weight:600}
+.card-pedido-actions{display:flex;gap:.4rem;margin-top:.85rem;flex-wrap:wrap}
+
+.tag{display:inline-block;padding:.25rem .65rem;border-radius:20px;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px}
+.tag-pendente{background:rgba(255,193,7,.15);color:var(--amar)}
+.tag-pago{background:rgba(37,211,102,.15);color:var(--verde)}
+.tag-enviado{background:rgba(33,150,243,.15);color:var(--azul)}
+.tag-cancelado{background:rgba(229,57,53,.15);color:var(--verm)}
+
+.btn-acao{padding:.55rem .9rem;background:var(--bg3);border:1px solid var(--borda);color:var(--txt);border-radius:8px;cursor:pointer;font-size:.8rem;font-weight:600}
+.btn-acao:hover{border-color:var(--bf)}
+.btn-ok{background:var(--br);color:#000;border-color:var(--br)}
+.btn-perigo{color:var(--verm);border-color:rgba(229,57,53,.4)}
+
+/* CARD PRODUTO */
+.card-produto{background:var(--bg2);border:1px solid var(--borda);border-radius:12px;padding:.9rem;margin-bottom:.75rem;display:flex;gap:1rem}
+.card-produto img{width:80px;height:80px;object-fit:cover;border-radius:8px;background:var(--bg3);flex-shrink:0}
+.produto-info{flex:1;min-width:0}
+.produto-cat{font-size:.65rem;color:var(--txtf);text-transform:uppercase;letter-spacing:1px;font-weight:700}
+.produto-info h3{font-size:.95rem;color:var(--br);margin:.15rem 0 .25rem;font-weight:700}
+.produto-desc{font-size:.78rem;color:var(--txts);margin-bottom:.4rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.produto-meta{display:flex;gap:.75rem;align-items:center;font-size:.85rem;flex-wrap:wrap}
+.preco{font-weight:800;color:var(--br)}
+.estoque{color:var(--txts);font-size:.78rem}
+.estoque.zero{color:var(--verm);font-weight:700}
+.produto-sabores{font-size:.72rem;color:var(--txtf);margin-top:.35rem}
+.badge-destaque{display:inline-block;font-size:.65rem;background:var(--br);color:#000;padding:.15rem .5rem;border-radius:4px;font-weight:800;margin-top:.35rem;letter-spacing:.5px}
+.produto-actions{display:flex;gap:.4rem;margin-top:.65rem}
+
+.vazio{text-align:center;color:var(--txtf);padding:3rem 1rem;font-size:.9rem}
+
+/* MODAL */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:1rem;z-index:10;overflow-y:auto}
+.modal-box{background:var(--bg2);border:1px solid var(--borda);border-radius:16px;padding:1.5rem;width:100%;max-width:520px;max-height:92vh;overflow-y:auto}
+.modal-box h2{font-size:1.15rem;font-weight:800;color:var(--br);margin-bottom:1.25rem}
+.modal-box label{display:block;font-size:.7rem;color:var(--txts);text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:.35rem;margin-top:.85rem}
+.modal-box input,.modal-box textarea,.modal-box select{width:100%;padding:.75rem .9rem;background:var(--bg3);border:1px solid var(--borda);border-radius:9px;color:var(--txt);outline:none;font-size:.9rem;font-family:inherit}
+.modal-box input:focus,.modal-box textarea:focus{border-color:var(--br)}
+.modal-box textarea{resize:vertical;min-height:80px}
+.checkbox{display:flex!important;align-items:center;gap:.6rem;margin-top:1rem!important;text-transform:none!important;font-size:.9rem!important;letter-spacing:0!important;color:var(--txt)!important;cursor:pointer}
+.checkbox input{width:auto!important}
+.modal-actions{display:flex;gap:.5rem;margin-top:1.5rem}
+.modal-actions button{flex:1;padding:.85rem;border-radius:10px;font-weight:700;font-size:.9rem;cursor:pointer;border:0}
+.btn-secundario{background:transparent!important;border:1px solid var(--borda)!important;color:var(--txts)!important}
+
+/* MODAL PEDIDO */
+.bloco-modal{background:var(--bg3);border-radius:10px;padding:1rem;margin-bottom:.75rem}
+.bloco-modal h3{font-size:.7rem;color:var(--txtf);text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:.5rem}
+.bloco-modal p{font-size:.88rem;color:var(--txt);line-height:1.6;word-break:break-word}
+.item-linha{display:flex;justify-content:space-between;gap:1rem;padding:.5rem 0;border-bottom:1px solid var(--borda);font-size:.88rem}
+.item-linha:last-of-type{border-bottom:0}
+.sabor-tag{font-size:.78rem;color:var(--br);font-weight:600;margin-top:.2rem}
+.total-linha{display:flex;justify-content:space-between;padding-top:.75rem;margin-top:.5rem;border-top:1px solid var(--borda);font-size:1rem;color:var(--br)}
+
+@media(max-width:600px){
+  main{padding:1rem}
+  .card-produto{flex-direction:column}
+  .card-produto img{width:100%;height:180px}
+  .card-pedido-top{flex-direction:column}
+  .pedido-direita{text-align:left;width:100%;display:flex;justify-content:space-between;align-items:center}
+}
+</style>
+</head>
+<body>
+
+<div id="tela-login" class="tela-login">
+  <div class="login-box">
+    <div class="login-logo">PODLABZ<span>ADMIN</span></div>
+    <h2>Painel de controle</h2>
+    <label>Senha</label>
+    <input id="senha" type="password" placeholder="Digite a senha" autocomplete="current-password">
+    <button id="btn-login" class="btn-primario" style="width:100%;margin-top:1rem">Entrar</button>
+    <p id="erro-login"></p>
+  </div>
+</div>
+
+<div id="painel" class="escondido">
+  <header>
+    <div class="logo-header" onclick="location.href='/'">PODLABZ<span>ADMIN</span></div>
+    <button id="btn-sair">Sair</button>
+  </header>
+
+  <div class="tabs">
+    <button data-tab="pedidos" class="ativo">📦 Pedidos</button>
+    <button data-tab="produtos">🏷️ Produtos</button>
+  </div>
+
+  <main>
+    <section id="tab-pedidos">
+      <div class="stats" id="stats"></div>
+      <div class="filtros-admin">
+        <input id="busca-pedidos" placeholder="Buscar por nome, telefone, e-mail ou #ID">
+        <select id="filtro-status">
+          <option value="">Todos os status</option>
+          <option value="pendente">Pendente</option>
+          <option value="pago">Pago</option>
+          <option value="enviado">Enviado</option>
+          <option value="cancelado">Cancelado</option>
+        </select>
+      </div>
+      <div id="lista-pedidos"></div>
+    </section>
+
+    <section id="tab-produtos" class="escondido">
+      <div class="filtros-admin">
+        <input id="busca-produtos" placeholder="Buscar produto por nome ou categoria">
+        <button id="btn-novo-produto" class="btn-primario">+ Novo produto</button>
+      </div>
+      <div id="lista-produtos"></div>
+    </section>
+  </main>
+</div>
+
+<div id="modal-produto" class="modal escondido">
+  <div class="modal-box">
+    <h2 id="modal-titulo">Editar produto</h2>
+    <form id="form-produto">
+      <input type="hidden" id="produto-id">
+      <label>Nome</label>
+      <input id="p-nome" required>
+      <label>Categoria</label>
+      <input id="p-categoria" placeholder="Ex: Ignite" required>
+      <label>Descrição</label>
+      <input id="p-descricao" placeholder="Ex: 15.500 puffs · 16 sabores">
+      <label>Preço (R$)</label>
+      <input id="p-preco" type="number" step="0.01" min="0" required>
+      <label>Estoque</label>
+      <input id="p-estoque" type="number" min="0" required>
+      <label>URL da imagem</label>
+      <input id="p-imagem" type="url" placeholder="https://...">
+      <label>Sabores (separados por vírgula)</label>
+      <textarea id="p-sabores" placeholder="Uva, Morango, Menta, ..."></textarea>
+      <label class="checkbox">
+        <input type="checkbox" id="p-destaque"> Produto em destaque
+      </label>
+      <div class="modal-actions">
+        <button type="button" id="btn-cancelar-modal" class="btn-secundario">Cancelar</button>
+        <button type="submit" class="btn-primario">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="modal-pedido" class="modal escondido">
+  <div class="modal-box">
+    <h2 id="modal-pedido-titulo">Pedido</h2>
+    <div id="modal-pedido-conteudo"></div>
+    <div class="modal-actions">
+      <button type="button" id="btn-fechar-pedido" class="btn-secundario">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<script src="admin.js"></script>
+</body>
+</html>
