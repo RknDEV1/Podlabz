@@ -47,7 +47,7 @@ function renderProdutos(){
   el.innerHTML=produtos.map(function(p){
     var n=p.sabores?p.sabores.split(',').filter(Boolean).length:0;
     return '<div class="card" data-id="'+p.id+'">'+
-      '<img class="imagem" src="'+(p.imagem||'')+'" alt="'+p.nome+'" loading="lazy">'+
+      '<img class="imagem" src="'+(p.imagem||'')+'" alt="'+p.nome+'" loading="lazy" decoding="async" fetchpriority="low">'+
       '<div class="categoria">'+(p.categoria||'Geral')+'</div>'+
       '<h3>'+p.nome+'</h3><small>'+(p.descricao||'')+'</small>'+
       (n>0?'<div style="font-size:.72rem;color:#6b6b6b;margin:.35rem 0">🍓 '+n+' sabores</div>':'')+

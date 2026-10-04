@@ -103,9 +103,31 @@ if (total === 0) {
   'Black Sheep 55K': 'https://i.ibb.co/nNK3ycYD/a5c8a819-a086-4823-9d59-1f6e8f57ff23.jpg'
 };
 
+const SABORES = {
+  'Ignite V Nano':   'Abacaxi c/ gelo, Maracujá azedo e kiwi, Mentol, Goiaba c/ morango, Morango c/ gelo, Uva c/ gelo, Melancia c/ gelo, Menta c/ gelo, Açaí e uva',
+  'Ignite V35':      'Menta c/ gelo, Cereja c/ gelo, Mix de frutas, Framboesa azul c/ gelo, Mentol, Uva c/ gelo, Maçã verde pêssego e kiwi, Morango maçã e melancia',
+  'Ignite V55':      'Uva c/ gelo, Menta de Miami, Morango e kiwi, Melão c/ menta, Uva maçã verde e açaí, Morango e banana, Mix de melão, Melancia c/ gelo, Morango e melancia',
+  'Ignite V80':      'Uva, Morango e kiwi, Menta c/ gelo, Morango c/ gelo, Maracujá azedo e kiwi, Mentol, Melancia c/ gelo',
+  'Ignite V155':     'Açaí tropical, Uva c/ gelo, Mirtilo c/ gelo, Maçã verde, Mentol, Morango e banana, Melancia c/ gelo, Mix de melancia, Melancia e fruta do dragão, Abacaxi c/ gelo, Morango e melancia, Maracujá e kiwi, Banana c/ gelo, Menta c/ gelo, Morango e kiwi, Morango c/ gelo',
+  'Ignite V40':      'Melancia c/ gelo, Morango, Abacaxi, Uva Sakura, Morango e kiwi, Morango maçã e melancia, Uva framboesa azul e limão, Morango e melancia',
+  'Ignite V300':     'Morango e kiwi, Abacaxi e manga, Abacaxi kiwi e fruta do dragão, Mentol, Uva c/ gelo, Mirtilo c/ gelo, Menta c/ gelo, Morango c/ gelo, Melancia c/ gelo, Abacaxi c/ gelo, Banana c/ gelo, Banana e água de coco, Melão c/ menta, Morango e banana',
+  'Ignite V400 Mix': 'Menta c/ gelo, Pêssego e uva, Açaí c/ gelo, Melancia e uva, Manga c/ gelo, Pêssego manga e melancia, Mentol, Melão c/ menta, Maracujá e goiaba, Abacaxi c/ gelo, Pêssego c/ gelo, Uva c/ gelo, Morango c/ gelo',
+  'Ignite V500':     'Maracujá e manga, Mirtilo c/ gelo, Maçã verde pêssego e kiwi, Menta c/ gelo, Morango e melancia, Morango maçã e melancia, Morango e kiwi, Maçã verde, Mix de melancia, Banana e cereja, Morango c/ gelo, Pêssego e uva, Abacaxi c/ gelo, Abacaxi e manga, Kiwi e açaí, Uva c/ gelo, Mentol',
+  'Elfbar BC15K':    'Abacaxi c/ gelo, Uva Sakura, Maracujá e laranja, Americana, Limonada tropical, Uva Bubbaloo, Morango c/ gelo, Morango e melancia, Pêssego manga e melancia, Melancia c/ gelo, Morango e kiwi, Maçã verde c/ gelo, Manga mágica, Maracujá kiwi e goiaba, Framboesa azul, Menta c/ gelo, Menta de Miami',
+  'Elfbar GH':       'Maçã verde c/ gelo, Pêssego manga e melancia, Menta de Miami, Uva Sakura, Menta de primavera, Mirtilo e pera, Abacaxi ameixa limão e menta, Morango e banana, Toranja e uva, Framboesa azul, Toranja c/ gelo, Kiwi e fruta do dragão, Morango c/ gelo',
+  'Elfbar TE':       'Tutti-frutti Bubbaloo, Mirtilo c/ gelo, Morango e cereja, Menta de inverno, Melancia c/ gelo, Açaí e banana, Abacaxi c/ gelo, Abacaxi e manga, Maçã verde c/ gelo, Morango c/ gelo, Menta de Miami, Morango e melancia, Morango banana e fruta do dragão, Morango e pêssego, Maracujá kiwi e goiaba, Mix azedo de frutas, Elf Love',
+  'Elfbar Duke':     'Mentol, Uva Fanta, Menta c/ gelo, Mirtilo c/ gelo, Framboesa azul, Manga mágica, Melancia e limão c/ gelo, Pêssego manga e melancia, Abacaxi c/ gelo, Tutti-frutti Bubbaloo, Maracujá kiwi e goiaba',
+  'Elfbar 40K':      'Tigers Blood, Pêssego, Mix azedo de frutas, Baja Splash, Morango banana e fruta do dragão, Morango Spark, Suco de cranberry e abacaxi, Mirtilo c/ gelo, Mix de verão, Morango e melancia, Morango c/ gelo, Cereja Fuse, Maçã azeda c/ gelo, Framboesa azul c/ gelo, Menta de Miami, Melancia c/ gelo, Maçã verde, Morango azedo e fruta do dragão, Manga mágica, Maçã dupla, Uva c/ gelo, Morango e cereja',
+  'Elfbar BC45K':    'Manga mágica, Mix tropical, Americana c/ gelo, Abacaxi, Mirtilo morango e coco c/ gelo, Melancia c/ gelo, Mix de uva, Mentol, Maçã verde c/ gelo, Menta de Miami, Maracujá kiwi e goiaba',
+  'Lost Mary Mixer': 'Melancia B-Pop, Mix de menta, Melancia c/ gelo, Framboesa azul c/ gelo, Maçã e uva',
+  'HOD':             'Uva c/ gelo, Mentol',
+  'Rabbeats RC':     'Melancia e pêssego, Morango c/ gelo, Fanta morango, Mix de frutas vermelhas, Maracujá kiwi e goiaba, Melancia c/ gelo, Morango e kiwi c/ gelo, Mentol, Banana c/ gelo',
+  'Black Sheep 55K': 'Aloe e uva, Mirtilo e melancia, Menta intensa (Cool Mint), Menta de Miami, Mix de frutas vermelhas, Maracujá (Passion Fruit), Morango e banana, Melancia com gelo'
+};
+
 for (const [nome, desc, cat, preco, estoque, destaque] of produtos) {
     const slug = nome.toLowerCase().replace(/[^a-z0-9]/g, '-');
-    inserir.run(nome, desc, cat, preco, IMAGENS[nome] || `https://picsum.photos/seed/${slug}/600/600`, estoque, destaque, null);
+    inserir.run(nome, desc, cat, preco, IMAGENS[nome] || `https://picsum.photos/seed/${slug}/600/600`, estoque, destaque, SABORES[nome] || null);
   }
 }
 

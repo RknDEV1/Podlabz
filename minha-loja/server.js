@@ -278,4 +278,14 @@ app.delete('/api/admin/produtos/:id', authAdmin, (req, res) => {
 app.get('/admin', (_req, res) => res.type('html').sendFile(path.join(__dirname, 'public', 'admin.html')));
 
 const PORT = process.env.PORT || 3000;
+app.post('/api/meus-pedidos', (req, res) => {
+  const email = (req.body && req.body.email) || '';
+  if (!email || email.indexOf('@') === -1) return res.status(400).json({ erro: 'Email invalido' });
+  const lista = db.prepare('SELECT id, status, total_centavos, criado_em, pago_em, rua, numero, bairro, cidade, estado FROM pedidos WHERE LOWER(cliente_email) = LOWER(?) ORDER BY id DESC').all(email);
+  for (const p of lista) {
+    p.itens = db.prepare('SELECT nome, quantidade, sabor, preco_centavos FROM pedido_itens WHERE pedido_id = ?').all(p.id);
+  }
+  res.json(lista);
+});
+
 app.listen(PORT, () => console.log(`🚀 Loja rodando em http://localhost:${PORT}`));

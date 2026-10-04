@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0a0a0a">
+<title>Meus pedidos — Podlabz</title>
+<link rel="stylesheet" href="style.css">
+<style>
+.wrap{max-width:640px;margin:2rem auto;padding:1rem}
+.card{background:var(--bg-2);border:1px solid var(--borda);border-radius:12px;padding:1.25rem;margin-bottom:1rem}
+.tag{display:inline-block;padding:.25rem .65rem;border-radius:20px;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px}
+.tag-pendente{background:rgba(255,193,7,.15);color:#ffc107}
+.tag-pago{background:rgba(37,211,102,.15);color:#25d366}
+.tag-enviado{background:rgba(33,150,243,.15);color:#2196f3}
+.tag-cancelado{background:rgba(229,57,53,.15);color:#e53935}
+.item{display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid var(--borda);font-size:.9rem}
+.item:last-child{border-bottom:0}
+.sabor{color:var(--branco);font-size:.8rem;font-weight:600}
+.aviso{color:var(--texto-suave);font-size:.85rem;text-align:center;padding:2rem 1rem}
+</style>
+</head>
+<body>
+<header>
+  <h1 class="logo-texto" onclick="location.href='/'">PODLABZ</h1>
+  <button onclick="location.href='/'">🛒 Loja</button>
+</header>
+
+<div class="wrap">
+  <h2 style="color:var(--branco);margin-bottom:.5rem">Meus pedidos</h2>
+  <p style="color:var(--texto-suave);font-size:.9rem;margin-bottom:1.5rem">
+    Digite o e-mail que você usou na compra.
+  </p>
+
+  <form id="form-busca" style="display:flex;gap:.5rem;margin-bottom:1.5rem">
+    <input id="email" type="email" placeholder="seu@email.com" required
+           style="flex:1;padding:.85rem 1rem;background:var(--bg-3);border:1px solid var(--borda);border-radius:10px;color:var(--texto);outline:none">
+    <button type="submit" class="btn-pagar" style="max-width:140px">Buscar</button>
+  </form>
+
+  <div id="resultado"></div>
+</div>
+
+<script>
+function brl(c){ return (c/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); }
+
+document.getElementById('form-busca').onsubmit = async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('email').value.trim();
+  const el = document.getElementById('resultado');
+  el.innerHTML = '<p class="aviso">Buscando...</p>';
+
+  try {
+    const r = await fetch('/api/meus-pedidos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    const lista = await r.json();
+
+    if (!lista.length) {
+      el.innerHTML = '<p class="aviso">Nenhum pedido encontrado com este e-mail.</p>';
+      return;
+    }
+
+    el.innerHTML = lista.map(p => {
+      const itens = p.itens.map(i =>
+        '<div class="item"><div>' + i.quantidade + 'x ' + i.nome +
+        (i.sabor ? '<br><span class="sabor">🍓 ' + i.sabor + '</span>' : '') +
+        '</div><div>' + brl(i.preco_centavos * i.quantidade) + '</div></div>'
+      ).join('');
+
+      return '<div class="card">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">' +
+          '<div><div style="font-size:.7rem;color:var(--texto-fraco);letter-spacing:1px">PEDIDO</div>' +
+          '<div style="font-weight:800;color:var(--branco);font-size:1.1rem">#' + p.id + '</div></div>' +
+          '<span class="tag tag-' + p.status + '">' + p.status + '</span>' +
+        '</div>' +
+        itens +
+        '<div style="display:flex;justify-content:space-between;margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--borda);font-weight:800;color:var(--branco)">' +
+          '<div>Total</div><div>' + brl(p.total_centavos) + '</div>' +
+        '</div>' +
+        '<div style="color:var(--texto-fraco);font-size:.75rem;margin-top:.75rem;line-height:1.6">' +
+          'Feito em ' + dataBR(p.criado_em) +
+          (p.pago_em ? '<br>Pago em ' + dataBR(p.pago_em) : '') +
+          (p.cidade ? '<br>Entrega: ' + p.cidade + '/' + p.estado : '') +
+        '</div>' +
+      '</div>';
+    }).join('');
+  } catch (err) {
+    el.innerHTML = '<p class="aviso">Erro: ' + err.message + '</p>';
+  }
+};
+</script>
+</body>
+</html>
