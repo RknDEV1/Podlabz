@@ -100,12 +100,7 @@ function addCarrinho(pid, sab, qtd){
 }
 
 // ===== Handlers de sabor =====
-var bcS = document.getElementById('btn-confirmar-sabor');
-if(bcS) bcS.onclick = function(){
-  if(!saborSelecionado || !produtoSaborAtual) return;
-  addCarrinho(produtoSaborAtual.id, saborSelecionado, 1);
-  var m = document.getElementById('modal-sabor'); if(m) m.classList.add('escondido');
-};
+
 var bfS = document.getElementById('btn-fechar-sabor');
 if(bfS) bfS.onclick = function(){ var m = document.getElementById('modal-sabor'); if(m) m.classList.add('escondido'); };
 
@@ -251,5 +246,21 @@ document.addEventListener('input', async function(e) {
     console.log('CEP preenchido:', d.localidade, '/', d.uf);
   } catch(err) {
     console.error('Erro CEP:', err.message);
+  }
+});
+
+// Handler global (funciona mesmo se o botao for re-renderizado)
+document.addEventListener('click', function(e){
+  if(!e.target) return;
+  if(e.target.id === 'btn-confirmar-sabor'){
+    if(!saborSelecionado){ alert('Escolha um sabor primeiro'); return; }
+    if(!produtoSaborAtual){ alert('Erro: produto perdido. Feche e tente de novo.'); return; }
+    addCarrinho(produtoSaborAtual.id, saborSelecionado, 1);
+    var m = document.getElementById('modal-sabor');
+    if(m) m.classList.add('escondido');
+  }
+  if(e.target.id === 'btn-fechar-sabor'){
+    var m2 = document.getElementById('modal-sabor');
+    if(m2) m2.classList.add('escondido');
   }
 });
