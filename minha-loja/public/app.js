@@ -231,3 +231,25 @@ if(bCp) bCp.onclick = async function(){
 carregarCategorias();
 carregarProdutos();
 atualizarQtd();
+
+// Busca CEP automaticamente (ViaCEP)
+document.addEventListener('input', async function(e) {
+  if (e.target.name !== 'cep') return;
+  var cep = e.target.value.replace(/\D/g, '');
+  if (cep.length !== 8) return;
+  try {
+    var r = await fetch('https://viacep.com.br/ws/' + cep + '/json/');
+    var d = await r.json();
+    if (d.erro) { console.log('CEP nao encontrado'); return; }
+    var form = e.target.closest('form');
+    if (!form) return;
+    if (form.rua && d.logradouro) form.rua.value = d.logradouro;
+    if (form.bairro && d.bairro) form.bairro.value = d.bairro;
+    if (form.cidade && d.localidade) form.cidade.value = d.localidade;
+    if (form.estado && d.uf) form.estado.value = d.uf;
+    if (form.numero) form.numero.focus();
+    console.log('CEP preenchido:', d.localidade, '/', d.uf);
+  } catch(err) {
+    console.error('Erro CEP:', err.message);
+  }
+});
