@@ -2,7 +2,7 @@ const Database = require('better-sqlite3');
 const path = require('path');
 const fs = require('fs');
 
-const dir = process.env.NODE_ENV === 'production' ? '/data' : path.join(__dirname, 'data');
+const dir = path.join(__dirname, 'data');
 if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 
 const db = new Database(path.join(dir, 'loja.db'));
