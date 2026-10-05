@@ -29,6 +29,8 @@ async function notificarPedido(p, itens) {
     '<b>Itens:</b>',
     linhas,
     '',
+    '<b>Subtotal:</b> R$ ' + ((p.total_centavos - (p.frete_centavos || 0)) / 100).toFixed(2),
+    '<b>Frete:</b> R$ ' + ((p.frete_centavos || 0) / 100).toFixed(2),
     '<b>Total:</b> R$ ' + (p.total_centavos / 100).toFixed(2),
     '',
     '<b>Cliente:</b> ' + p.cliente_nome,

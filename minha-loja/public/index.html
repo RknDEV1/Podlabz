@@ -45,7 +45,9 @@
         <input name="bairro" placeholder="Bairro" required>
         <input name="cidade" placeholder="Cidade" required>
         <input name="estado" placeholder="Estado (ex: GO, SP)" required maxlength="2">
-        <button type="submit" class="btn-pagar">Gerar Pix</button>
+<button type="button" id="calcular-frete" class="btn-secundario" style="margin-top:.5rem">Calcular Frete</button>
+<div id="opcoes-frete" style="margin-top:.75rem"></div>
+        <button type="submit" class="btn-pagar" disabled>Calcule o frete primeiro</button>
       </form>
       <button id="fechar" class="btn-secundario">Fechar</button>
     </div>

@@ -5,6 +5,7 @@ const crypto = require('crypto');
 const db = require('./db');
 const { criarCobranca, consultarPagamento, simularPagamento } = require('./lib/pagamento');
 const { notificarPedido, enviar } = require('./lib/telegram');
+const { calcularFrete } = require('./lib/frete');
 
 const app = express();
 
@@ -115,11 +116,13 @@ app.get('/api/produtos/:id', (req, res) => {
 /* ---------- Pedidos ---------- */
 app.post('/api/pedidos', async (req, res) => {
   try {
-    const { cliente, itens } = req.body;
+    const { cliente, itens, frete } = req.body;
     if (!cliente?.nome || !cliente?.email || !cliente?.telefone || !cliente?.cep || !cliente?.rua || !cliente?.numero || !cliente?.cidade)
       return res.status(400).json({ erro: 'Dados do cliente incompletos.' });
     if (!Array.isArray(itens) || itens.length === 0)
       return res.status(400).json({ erro: 'Carrinho vazio.' });
+    if (!frete || typeof frete.preco !== 'number')
+      return res.status(400).json({ erro: 'Frete obrigatorio. Calcule antes de finalizar.' });
 
     const ids = itens.map(i => i.produtoId);
     const placeholders = ids.map(() => '?').join(',');
@@ -144,10 +147,12 @@ app.post('/api/pedidos', async (req, res) => {
     }
 
     const enderecoCompleto = [cliente.rua, cliente.numero, cliente.complemento, cliente.bairro, cliente.cidade + '-' + cliente.estado, 'CEP ' + cliente.cep].filter(Boolean).join(', ');
+    const freteCentavos = frete ? Math.round(frete.preco * 100) : 0;
+    total += freteCentavos;
     const info = db.prepare(`
-      INSERT INTO pedidos (cliente_nome, cliente_email, cliente_telefone, endereco, total_centavos, cpf, cep, rua, numero, complemento, bairro, cidade, estado)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(cliente.nome, cliente.email, cliente.telefone, enderecoCompleto, total, cliente.cpf||null, cliente.cep||null, cliente.rua||null, cliente.numero||null, cliente.complemento||null, cliente.bairro||null, cliente.cidade||null, cliente.estado||null);
+      INSERT INTO pedidos (cliente_nome, cliente_email, cliente_telefone, endereco, total_centavos, frete_centavos, cpf, cep, rua, numero, complemento, bairro, cidade, estado)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(cliente.nome, cliente.email, cliente.telefone, enderecoCompleto, total, freteCentavos, cliente.cpf||null, cliente.cep||null, cliente.rua||null, cliente.numero||null, cliente.complemento||null, cliente.bairro||null, cliente.cidade||null, cliente.estado||null);
 
     const pedidoId = info.lastInsertRowid;
 
@@ -286,6 +291,18 @@ app.post('/api/meus-pedidos', (req, res) => {
     p.itens = db.prepare('SELECT nome, quantidade, sabor, preco_centavos FROM pedido_itens WHERE pedido_id = ?').all(p.id);
   }
   res.json(lista);
+});
+
+app.post('/api/frete', async (req, res) => {
+  try {
+    const { cep, itens } = req.body;
+    if (!cep || cep.replace(/\D/g,'').length !== 8) return res.status(400).json({ erro: 'CEP invalido' });
+    const opcoes = await calcularFrete({ cepDestino: cep, itens: itens });
+    res.json(opcoes);
+  } catch (e) {
+    console.error('Erro /api/frete:', e);
+    res.status(500).json({ erro: 'Falha ao calcular' });
+  }
 });
 
 app.listen(PORT, () => console.log(`🚀 Loja rodando em http://localhost:${PORT}`));

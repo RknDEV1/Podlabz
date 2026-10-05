@@ -402,3 +402,6 @@ footer strong { color: var(--texto-suave); }
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
+
+/* Garante que modal escondido não bloqueia cliques */
+.modal.escondido { display: none !important; pointer-events: none !important; }
