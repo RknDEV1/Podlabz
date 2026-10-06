@@ -1,10 +1,10 @@
 const TABELA = {
-  sergipe:     { nome: 'Sergipe',      preco: 2000, prazo: '2 a 4 dias úteis',  ceps: [[49,49]] },
-  sudeste:     { nome: 'Sudeste',      preco: 2000, prazo: '4 a 8 dias úteis',  ceps: [[1,19],[20,28],[29,29],[30,39]] },
-  sul:         { nome: 'Sul',          preco: 2500, prazo: '5 a 9 dias úteis',  ceps: [[80,99]] },
-  centrooeste: { nome: 'Centro-Oeste', preco: 3000, prazo: '6 a 10 dias úteis', ceps: [[70,79]] },
-  nordeste:    { nome: 'Nordeste',     preco: 3000, prazo: '5 a 10 dias úteis', ceps: [[40,48],[50,65]] },
-  norte:       { nome: 'Norte',        preco: 4500, prazo: '8 a 15 dias úteis', ceps: [[66,69]] }
+  sergipe:     { nome: 'Sergipe',      preco: 2000, prazo: '7 a 10 dias úteis',  ceps: [[49,49]] },
+  sudeste:     { nome: 'Sudeste',      preco: 2000, prazo: '7 a 10 dias úteis',  ceps: [[1,19],[20,28],[29,29],[30,39]] },
+  sul:         { nome: 'Sul',          preco: 2500, prazo: '7 a 10 dias úteis',  ceps: [[80,99]] },
+  centrooeste: { nome: 'Centro-Oeste', preco: 3000, prazo: '7 a 10 dias úteis', ceps: [[70,79]] },
+  nordeste:    { nome: 'Nordeste',     preco: 3000, prazo: '7 a 10 dias úteis', ceps: [[40,48],[50,65]] },
+  norte:       { nome: 'Norte',        preco: 4500, prazo: '7 a 10 dias úteis', ceps: [[66,69]] }
 };
 
 const FRETE_GRATIS_ACIMA = 25000;
