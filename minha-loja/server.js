@@ -10,80 +10,39 @@ const { calcularFrete } = require('./lib/frete');
 
 const app = express();
 
-/* ---------- WEBHOOK BUCKPAY ---------- */
-app.post('/webhook/buckpay',
-  express.raw({ type: 'application/json' }),
-  async (req, res) => {
-    res.sendStatus(200);
-    try {
-      const body = JSON.parse(req.body.toString('utf8'));
-      console.log('Webhook BuckPay:', JSON.stringify(body).slice(0, 300));
-      
-      // TODO: ajustar conforme payload real da BuckPay
-      // Assim que você me mandar o exemplo do webhook, ajusto aqui
-    } catch (err) {
-      console.error('Erro webhook BuckPay:', err);
+/* ---------- WEBHOOK BUCKPAY (antes do express.json) ---------- */
+app.post('/webhook/buckpay', express.json(), async (req, res) => {
+  res.sendStatus(200);
+  try {
+    const body = req.body || {};
+    const event = body.event || '';
+    const data = body.data || {};
+    console.log('Webhook BuckPay:', event, '| ID:', data.id, '| Status:', data.status);
+    if (event !== 'transaction.processed' || data.status !== 'paid') {
+      console.log('Ignorado:', event, data.status);
+      return;
     }
+    const txId = data.id;
+    if (!txId) return;
+    const pedido = db.prepare('SELECT * FROM pedidos WHERE yuvex_payment_id = ?').get(txId);
+    if (!pedido) { console.log('Pedido nao encontrado:', txId); return; }
+    if (pedido.status === 'pago') return;
+    db.prepare("UPDATE pedidos SET status='pago', pago_em=datetime('now') WHERE id=?").run(pedido.id);
+    const itens = db.prepare('SELECT * FROM pedido_itens WHERE pedido_id = ?').all(pedido.id);
+    const baixar = db.prepare('UPDATE produtos SET estoque = estoque - ? WHERE id = ?');
+    for (const i of itens) baixar.run(i.quantidade, i.produto_id);
+    await notificarPedido({ ...pedido, status: 'pago' }, itens);
+    console.log('Pedido ' + pedido.id + ' confirmado!');
+  } catch (err) {
+    console.error('Erro webhook BuckPay:', err);
   }
-);
+});
 
-/* ---------- WEBHOOK (raw body) ---------- */
-app.post('/webhook/yuvexpay',
-  express.raw({ type: 'application/json' }),
-  async (req, res) => {
-    const rawBody = req.body.toString('utf8');
-    console.log('DEBUG_WEBHOOK headers:', JSON.stringify(req.headers, null, 2));
-    const secret = process.env.YUVEX_WEBHOOK_SECRET;
-    const ts = req.headers['x-webhook-timestamp'];
-    const sig = req.headers['x-webhook-signature'];
-
-    if (!ts || !sig) return res.status(401).send('Missing signature');
-
-    const drift = Math.abs(Math.floor(Date.now() / 1000) - parseInt(ts, 10));
-    if (drift > 300) return res.status(401).send('Timestamp too old');
-
-    const expected = 'v1=' + crypto
-      .createHmac('sha256', secret)
-      .update(`${ts}.${rawBody}`)
-      .digest('hex');
-
-    const a = Buffer.from(sig);
-    const b = Buffer.from(expected);
-    if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) {
-      return res.status(401).send('Invalid signature');
-    }
-
-    res.sendStatus(200);
-
-    try {
-      const eventType = req.headers['x-webhook-event'];
-      const body = JSON.parse(rawBody);
-      if (eventType !== 'PAYMENT_PAID') return;
-
-      const paymentId = body.id;
-      const pedido = db.prepare('SELECT * FROM pedidos WHERE yuvex_payment_id = ?').get(paymentId);
-      if (!pedido || pedido.status === 'pago') return;
-
-      db.prepare(`UPDATE pedidos SET status='pago', pago_em=datetime('now') WHERE id=?`).run(pedido.id);
-
-      const itens = db.prepare('SELECT * FROM pedido_itens WHERE pedido_id = ?').all(pedido.id);
-      const baixar = db.prepare('UPDATE produtos SET estoque = estoque - ? WHERE id = ?');
-      for (const i of itens) baixar.run(i.quantidade, i.produto_id);
-
-      await notificarPedido({ ...pedido, status: 'pago' }, itens);
-    } catch (err) {
-      console.error('Erro no webhook:', err);
-    }
-  }
-);
-
-app.use(compression());
+/* ---------- MIDDLEWARES ---------- */
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: '7d', etag: true }));
 
-app.get('/', (_req, res) => {
-  res.type('html').sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+
 
 
 
