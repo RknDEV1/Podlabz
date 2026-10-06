@@ -10,6 +10,23 @@ const { calcularFrete } = require('./lib/frete');
 
 const app = express();
 
+/* ---------- WEBHOOK BUCKPAY ---------- */
+app.post('/webhook/buckpay',
+  express.raw({ type: 'application/json' }),
+  async (req, res) => {
+    res.sendStatus(200);
+    try {
+      const body = JSON.parse(req.body.toString('utf8'));
+      console.log('Webhook BuckPay:', JSON.stringify(body).slice(0, 300));
+      
+      // TODO: ajustar conforme payload real da BuckPay
+      // Assim que você me mandar o exemplo do webhook, ajusto aqui
+    } catch (err) {
+      console.error('Erro webhook BuckPay:', err);
+    }
+  }
+);
+
 /* ---------- WEBHOOK (raw body) ---------- */
 app.post('/webhook/yuvexpay',
   express.raw({ type: 'application/json' }),
@@ -176,8 +193,8 @@ app.post('/api/pedidos', async (req, res) => {
     res.json({
       pedidoId,
       paymentId: pagamento.id,
-      pixCopiaECola: pagamento.methodData?.pixCopyPaste || null,
-      qrCodeBase64: pagamento.methodData?.qrCodeBase64 || null
+      pixCopiaECola: pagamento.pixCopyPaste || (pagamento.methodData && pagamento.methodData.pixCopyPaste) || null,
+      qrCodeBase64: pagamento.qrCodeBase64 || (pagamento.methodData && pagamento.methodData.qrCodeBase64) || null
     });
   } catch (err) {
     console.error(err);

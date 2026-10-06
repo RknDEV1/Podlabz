@@ -204,7 +204,7 @@ if(fC) fC.onsubmit = async function(e){
     if(!r.ok) throw new Error(d.erro||'Erro');
     localStorage.removeItem('carrinho'); carrinho.length = 0; atualizarQtd();
     var m = document.getElementById('modal'); if(m) m.classList.add('escondido');
-    var qr = document.getElementById('qrcode-img'); if(qr) qr.src = d.qrCodeBase64 ? (d.qrCodeBase64.indexOf('data:')===0 ? d.qrCodeBase64 : 'data:image/png;base64,'+d.qrCodeBase64) : '';
+    var qr = document.getElementById('qrcode-img'); if(qr && d.qrCodeBase64) qr.src = d.qrCodeBase64.indexOf('data:')===0 ? d.qrCodeBase64 : 'data:image/png;base64,'+d.qrCodeBase64;
     var px = document.getElementById('pix-copia-cola'); if(px) px.value = d.pixCopiaECola||'';
     var mp = document.getElementById('modal-pix'); if(mp) mp.classList.remove('escondido');
     if(pollingId) clearInterval(pollingId);
