@@ -54,6 +54,22 @@ body::before {
   -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
 }
 
+/* ---------- FUMAÇA ANIMADA ---------- */
+
+
+
+
+
+
+
+
+
+
+/* ---------- PARTÍCULAS ---------- */
+
+
+
+
 /* ---------- HEADER ---------- */
 header {
   display: flex;
@@ -688,80 +704,132 @@ footer a:hover { color: var(--roxo-claro); text-shadow: 0 0 15px rgba(167,139,25
 }
 
 /* ============================================
-   FIX: trava em celulares fracos
+   FUMAÇA LIVRE — percorre toda a tela
    ============================================ */
-
-/* Reduz drasticamente as animações no mobile */
-@media (max-width: 768px) {
-  
-
-/* Se o celular ainda travar, esconde tudo */
-@media (max-width: 480px) {
-  
-
-/* ============================================
-   FUMAÇA OTIMIZADA (funciona em mobile + desktop)
-   ============================================ */
-
 .smoke-container {
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 0;
   overflow: hidden;
-  will-change: transform;
 }
 
 .smoke {
   position: absolute;
-  width: 700px;
-  height: 700px;
+  width: 900px;
+  height: 900px;
   border-radius: 50%;
-  filter: blur(70px);
-  opacity: .12;
+  filter: blur(100px);
+  opacity: .18;
+  mix-blend-mode: screen;
   will-change: transform, opacity;
   transform: translate(-50%, -50%);
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
 }
 
+/* Nuvem 1 — percorre diagonal da esquerda-topo pra direita-baixo */
 .smoke-1 {
-  background: radial-gradient(circle, rgba(139,92,246,.7), transparent 70%);
-  top: 20%; left: 10%;
-  animation: smokeA 50s ease-in-out infinite;
+  background: radial-gradient(circle, rgba(139,92,246,.75) 0%, rgba(139,92,246,.2) 40%, transparent 70%);
+  top: 20%;
+  left: 10%;
+  animation: smoke1 45s ease-in-out infinite;
 }
+
+@keyframes smoke1 {
+  0%   { transform: translate(-50%, -50%) scale(1);    opacity: .10; }
+  15%  { transform: translate(20vw, 10vh) scale(1.4);  opacity: .28; }
+  35%  { transform: translate(70vw, 50vh) scale(1.1);  opacity: .22; }
+  55%  { transform: translate(40vw, 80vh) scale(1.5);  opacity: .30; }
+  75%  { transform: translate(-10vw, 40vh) scale(.9);  opacity: .15; }
+  100% { transform: translate(-50%, -50%) scale(1);    opacity: .10; }
+}
+
+/* Nuvem 2 — percorre da direita-baixo pra esquerda-topo */
 .smoke-2 {
-  background: radial-gradient(circle, rgba(6,182,212,.6), transparent 70%);
-  top: 60%; left: 80%;
-  animation: smokeB 60s ease-in-out infinite;
+  background: radial-gradient(circle, rgba(6,182,212,.6) 0%, rgba(6,182,212,.15) 40%, transparent 70%);
+  top: 60%;
+  left: 80%;
+  animation: smoke2 55s ease-in-out infinite;
 }
+
+@keyframes smoke2 {
+  0%   { transform: translate(-50%, -50%) scale(1);    opacity: .12; }
+  20%  { transform: translate(-60vw, -30vh) scale(1.3); opacity: .25; }
+  45%  { transform: translate(-20vw, 20vh) scale(1);    opacity: .18; }
+  70%  { transform: translate(-80vw, -50vh) scale(1.4); opacity: .28; }
+  100% { transform: translate(-50%, -50%) scale(1);    opacity: .12; }
+}
+
+/* Nuvem 3 — sobe e desce em curva */
 .smoke-3 {
-  background: radial-gradient(circle, rgba(167,139,250,.6), transparent 70%);
-  top: 40%; left: 50%;
-  animation: smokeC 45s ease-in-out infinite;
+  background: radial-gradient(circle, rgba(167,139,250,.65) 0%, rgba(167,139,250,.15) 40%, transparent 70%);
+  top: 40%;
+  left: 50%;
+  animation: smoke3 38s ease-in-out infinite;
 }
 
-@keyframes smokeA {
-  0%   { transform: translate(-50%,-50%) scale(1); opacity: .08; }
-  25%  { transform: translate(20vw, 30vh) scale(1.4); opacity: .18; }
-  50%  { transform: translate(60vw, 60vh) scale(1.1); opacity: .14; }
-  75%  { transform: translate(20vw, 20vh) scale(1.3); opacity: .16; }
-  100% { transform: translate(-50%,-50%) scale(1); opacity: .08; }
+@keyframes smoke3 {
+  0%   { transform: translate(-50%, -50%) scale(1);     opacity: .14; }
+  25%  { transform: translate(-30vw, -40vh) scale(1.5); opacity: .30; }
+  50%  { transform: translate(30vw, 30vh) scale(1.2);   opacity: .22; }
+  75%  { transform: translate(-20vw, 60vh) scale(1.4);  opacity: .26; }
+  100% { transform: translate(-50%, -50%) scale(1);     opacity: .14; }
 }
 
-@keyframes smokeB {
-  0%   { transform: translate(-50%,-50%) scale(1); opacity: .1; }
-  33%  { transform: translate(-50vw, -30vh) scale(1.3); opacity: .2; }
-  66%  { transform: translate(-30vw, 20vh) scale(1.1); opacity: .14; }
-  100% { transform: translate(-50%,-50%) scale(1); opacity: .1; }
+/* Nuvem 4 — órbita circular */
+.smoke-4 {
+  background: radial-gradient(circle, rgba(99,102,241,.55) 0%, rgba(99,102,241,.15) 40%, transparent 70%);
+  top: 50%;
+  left: 50%;
+  animation: smoke4 60s linear infinite;
 }
 
-@keyframes smokeC {
-  0%   { transform: translate(-50%,-50%) scale(1); opacity: .1; }
-  50%  { transform: translate(-20vw, 40vh) scale(1.5); opacity: .2; }
-  100% { transform: translate(-50%,-50%) scale(1); opacity: .1; }
+@keyframes smoke4 {
+  0%   { transform: translate(calc(-50% + 30vw), calc(-50% + 0vh)) scale(1.2);   opacity: .18; }
+  25%  { transform: translate(calc(-50% + 0vw), calc(-50% + 30vh)) scale(1.4);   opacity: .26; }
+  50%  { transform: translate(calc(-50% - 30vw), calc(-50% + 0vh)) scale(1.1);   opacity: .22; }
+  75%  { transform: translate(calc(-50% + 0vw), calc(-50% - 30vh)) scale(1.5);   opacity: .28; }
+  100% { transform: translate(calc(-50% + 30vw), calc(-50% + 0vh)) scale(1.2);   opacity: .18; }
 }
 
+/* Nuvem 5 — ziguezague rápido */
+.smoke-5 {
+  background: radial-gradient(circle, rgba(236,72,153,.4) 0%, rgba(236,72,153,.1) 40%, transparent 70%);
+  top: 30%;
+  left: 70%;
+  animation: smoke5 35s ease-in-out infinite;
+}
+
+@keyframes smoke5 {
+  0%   { transform: translate(-50%, -50%) scale(1);     opacity: .1; }
+  12%  { transform: translate(-40vw, 20vh) scale(1.3);  opacity: .22; }
+  28%  { transform: translate(20vw, 50vh) scale(1);     opacity: .16; }
+  42%  { transform: translate(-50vw, 70vh) scale(1.4);  opacity: .24; }
+  58%  { transform: translate(-70vw, 20vh) scale(1.1);  opacity: .18; }
+  75%  { transform: translate(-20vw, -30vh) scale(1.3); opacity: .2; }
+  100% { transform: translate(-50%, -50%) scale(1);     opacity: .1; }
+}
+
+/* Nuvem 6 — grande, cobre a tela devagar */
+.smoke-6 {
+  background: radial-gradient(circle, rgba(139,92,246,.5) 0%, rgba(167,139,250,.15) 30%, transparent 65%);
+  width: 1400px;
+  height: 1400px;
+  filter: blur(140px);
+  top: 50%;
+  left: 50%;
+  animation: smoke6 70s ease-in-out infinite;
+}
+
+@keyframes smoke6 {
+  0%   { transform: translate(-50%, -50%) scale(1);      opacity: .08; }
+  30%  { transform: translate(10vw, -20vh) scale(1.25);  opacity: .16; }
+  60%  { transform: translate(-15vw, 25vh) scale(1.15);  opacity: .14; }
+  100% { transform: translate(-50%, -50%) scale(1);      opacity: .08; }
+}
+
+/* ============================================
+   PARTÍCULAS flutuantes
+   ============================================ */
 .particles {
   position: fixed;
   inset: 0;
@@ -770,53 +838,78 @@ footer a:hover { color: var(--roxo-claro); text-shadow: 0 0 15px rgba(167,139,25
   overflow: hidden;
 }
 
-.particles::before {
+.particles::before,
+.particles::after {
   content: '';
   position: absolute;
-  width: 2px;
-  height: 2px;
-  background: rgba(167,139,250,.7);
+  width: 3px;
+  height: 3px;
+  background: var(--roxo-claro);
   border-radius: 50%;
   box-shadow:
-    15vw 25vh 0 0 rgba(167,139,250,.6),
-    45vw 65vh 0 1px rgba(6,182,212,.5),
-    75vw 15vh 0 0 rgba(255,255,255,.4),
-    85vw 85vh 0 1px rgba(139,92,246,.5),
-    25vw 85vh 0 0 rgba(167,139,250,.3);
-  animation: particlesUp 30s linear infinite;
-  will-change: transform;
+    10vw 15vh 0 0 rgba(167,139,250,.7),
+    25vw 55vh 0 1px rgba(6,182,212,.6),
+    42vw 80vh 0 0 rgba(255,255,255,.5),
+    58vw 25vh 0 1px rgba(139,92,246,.6),
+    72vw 65vh 0 0 rgba(167,139,250,.4),
+    88vw 40vh 0 1px rgba(6,182,212,.5),
+    15vw 90vh 0 0 rgba(255,255,255,.4),
+    35vw 10vh 0 1px rgba(139,92,246,.6),
+    65vw 85vh 0 0 rgba(236,72,153,.4),
+    95vw 10vh 0 1px rgba(167,139,250,.5);
+  animation: particlesUp 25s linear infinite;
+}
+
+.particles::after {
+  width: 2px;
+  height: 2px;
+  animation-delay: -12s;
+  animation-duration: 35s;
+  box-shadow:
+    5vw 30vh 0 0 rgba(139,92,246,.5),
+    20vw 70vh 0 0 rgba(255,255,255,.4),
+    50vw 15vh 0 1px rgba(6,182,212,.6),
+    75vw 55vh 0 0 rgba(167,139,250,.5),
+    30vw 45vh 0 1px rgba(255,255,255,.3),
+    60vw 90vh 0 0 rgba(236,72,153,.4),
+    85vw 25vh 0 0 rgba(139,92,246,.6);
 }
 
 @keyframes particlesUp {
-  0%   { transform: translateY(0); opacity: 0; }
+  0%   { transform: translateY(0);      opacity: 0; }
   10%  { opacity: 1; }
   90%  { opacity: 1; }
   100% { transform: translateY(-110vh); opacity: 0; }
 }
 
-/* ---------- MOBILE: reduz tudo ---------- */
+/* ============================================
+   FIX: trava em celulares fracos
+   ============================================ */
+
+/* Reduz drasticamente as animações no mobile */
 @media (max-width: 768px) {
   .smoke {
-    filter: blur(50px);
-    opacity: .06;
+    filter: blur(50px) !important;
+    opacity: .08 !important;
+    mix-blend-mode: normal !important;
+    will-change: auto !important;
   }
-  .smoke-2 { display: none; }
-  .particles::before { animation-duration: 50s; }
-}
-
-/* ---------- MOBILE FRACO: desliga tudo ---------- */
-@media (max-width: 480px) {
-  .smoke-container,
-  .particles {
+  .smoke-4, .smoke-5, .smoke-6 {
     display: none !important;
   }
-  body::before { display: none; }
+  .smoke-1, .smoke-2, .smoke-3 {
+    animation-duration: 60s !important;
+  }
+  .particles::before,
+  .particles::after {
+    animation: none !important;
+    opacity: .3 !important;
+  }
 }
 
-/* ---------- Acessibilidade ---------- */
-@media (prefers-reduced-motion: reduce) {
-  .smoke,
-  .particles::before {
-    animation: none !important;
+/* Se o celular ainda travar, esconde tudo */
+@media (max-width: 480px) {
+  .smoke-container {
+    display: none !important;
   }
 }

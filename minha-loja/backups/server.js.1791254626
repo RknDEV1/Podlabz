@@ -1,6 +1,5 @@
 require('dotenv').config();
 const express = require('express');
-const compression = require('compression');
 const path = require('path');
 const crypto = require('crypto');
 const db = require('./db');
@@ -60,9 +59,8 @@ app.post('/webhook/yuvexpay',
   }
 );
 
-app.use(compression());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public'), { maxAge: '7d', etag: true }));
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', (_req, res) => {
   res.type('html').sendFile(path.join(__dirname, 'public', 'index.html'));
