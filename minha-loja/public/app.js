@@ -417,10 +417,10 @@ document.addEventListener('click', function(e) {
 // WHATSAPP — Opção C (principal + outros)
 // ============================================
 var WHATS_NUMEROS = [
-  { numero: '5579988626620', label: 'Rakinin',    desc: 'Atendimento Podlabz', icon: '💬' },
-  { numero: '5579998554841', label: 'Guido',      desc: 'Atendimento Podlabz',            icon: '🛒' },
-  { numero: '5579998381703', label: 'Gabrielle',  desc: 'Atendimento Podlabz',           icon: '🛠️' },
-  { numero: '5579999118217', label: 'Yasmin',     desc: 'Atendimento Podlabz',          icon: '🚚' }
+  { numero: '5579988626620', label: 'Suporte Podlabz', desc: 'Clique para conversar', icon: '💬' },
+  { numero: '5579998554841', label: 'Suporte Podlabz', desc: 'Clique para conversar', icon: '💬' },
+  { numero: '5579998381703', label: 'Suporte Podlabz', desc: 'Clique para conversar', icon: '💬' },
+  { numero: '5579999118217', label: 'Suporte Podlabz', desc: 'Clique para conversar', icon: '💬' }
 ];
 
 var btnWhats = document.getElementById('btn-whats');
