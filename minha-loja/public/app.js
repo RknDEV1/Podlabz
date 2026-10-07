@@ -343,9 +343,6 @@ if (btnSom) {
 
 // Hook nos botões de adicionar
 document.addEventListener('click', function(e) {
-  if (e.target && e.target.classList && e.target.classList.contains('btn-add')) tocarSom('add');
-  if (e.target && e.target.id === 'btn-confirmar-sabor') tocarSom('add');
-  if (e.target && (e.target.id === 'btn-copiar')) tocarSom('pix');
 });
 
 // ============================================
@@ -414,9 +411,6 @@ if (btnSom) {
 
 // Hook nos botões de adicionar
 document.addEventListener('click', function(e) {
-  if (e.target && e.target.classList && e.target.classList.contains('btn-add')) tocarSom('add');
-  if (e.target && e.target.id === 'btn-confirmar-sabor') tocarSom('add');
-  if (e.target && (e.target.id === 'btn-copiar')) tocarSom('pix');
 });
 
 // ============================================

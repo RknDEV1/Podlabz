@@ -906,42 +906,7 @@ html.device-low .card:hover .imagem {
   transform: scale(1.02) !important;
 }
 
-/* ============================================
-   BOTÃO DE SOM (#14)
-   ============================================ */
-.btn-som {
-  position: fixed;
-  bottom: 20px;
-  left: 20px;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: rgba(20,20,20,.9);
-  border: 1px solid var(--borda);
-  color: var(--texto-suave);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  z-index: 100;
-  transition: all .25s var(--trans);
-  backdrop-filter: blur(10px);
-}
 
-.btn-som:hover {
-  border-color: var(--roxo);
-  color: var(--branco);
-  transform: scale(1.05);
-}
-
-.btn-som.ativo {
-  border-color: var(--roxo);
-  background: rgba(139,92,246,.15);
-  color: var(--roxo-claro);
-}
-
-html.device-low .btn-som { display: none; }
 
 /* ============================================
    MODAL WHATSAPP — Opção C
