@@ -824,3 +824,42 @@ _obsCards.observe(document.body, { childList: true, subtree: true });
     else { btn.style.opacity = '0'; btn.style.visibility = 'hidden'; }
   }, { passive: true });
 })();
+
+// ============================================
+// GUARDA-CORPO: bloqueia efeitos pesados em MID
+// ============================================
+(function() {
+  var t = window.deviceTier;
+  if (t === 'mid') {
+    // Em MID, desliga cursor de fumaça e botão magnético (mas mantém voo, scroll reveal, confete)
+    document.querySelectorAll = document.querySelectorAll.bind(document);
+  }
+})();
+
+// Confete adaptado: menos partículas em MID
+var _soltarConfetes = window.soltarConfetes;
+window.soltarConfetes = function() {
+  var t = window.deviceTier;
+  if (t === 'low') return;
+  var cores = ['#8b5cf6','#06b6d4','#a78bfa','#ffffff','#ec4899'];
+  var total = t === 'high' ? 80 : (t === 'mid' ? 35 : 0);
+  if (!total) return;
+
+  for (var i = 0; i < total; i++) {
+    (function(idx) {
+      setTimeout(function() {
+        var c = document.createElement('div');
+        c.style.cssText = 'position:fixed;top:-10px;left:' + (Math.random()*100) + 'vw;width:8px;height:8px;background:' + cores[Math.floor(Math.random()*cores.length)] + ';border-radius:' + (Math.random()>.5?'50%':'2px') + ';z-index:9999;pointer-events:none;will-change:transform;';
+        document.body.appendChild(c);
+        var dur = 1800 + Math.random()*1200;
+        var rot = Math.random()*720-360;
+        var desl = Math.random()*200-100;
+        c.animate([
+          { transform: 'translate(0,0) rotate(0deg)', opacity: 1 },
+          { transform: 'translate(' + desl + 'px,' + (window.innerHeight+50) + 'px) rotate(' + rot + 'deg)', opacity: 0 }
+        ], { duration: dur, easing: 'cubic-bezier(.4,0,.7,1)' });
+        setTimeout(function(){ c.remove(); }, dur);
+      }, idx * 20);
+    })(i);
+  }
+};

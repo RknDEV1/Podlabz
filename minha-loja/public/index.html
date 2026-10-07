@@ -8,18 +8,24 @@
   <link rel="preconnect" href="https://i.ibb.co">
   <link rel="dns-prefetch" href="https://i.ibb.co">
 <script>
-// Detecta capacidade do dispositivo e aplica classe no body
+// Detecção adaptativa — 3 tiers
 (function() {
-  var tier = 'mid';
-  var cores = navigator.hardwareConcurrency || 4;
   var ram = navigator.deviceMemory || 4;
+  var cores = navigator.hardwareConcurrency || 4;
   var conn = navigator.connection || {};
   var slow = conn.saveData || /2g|slow-2g/.test(conn.effectiveType || '');
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (reduce || slow || cores <= 2 || ram <= 2) tier = 'low';
-  else if (cores >= 8 && ram >= 8) tier = 'high';
+
+  var tier = 'mid';
+  // LOW: muito fraco ou restrição de acessibilidade/rede
+  if (reduce || slow || ram <= 2 || cores <= 2) tier = 'low';
+  // HIGH: potente
+  else if (ram >= 6 && cores >= 6) tier = 'high';
+  // MID: o resto (inclui 3-4GB)
+
   document.documentElement.classList.add('device-' + tier);
   window.deviceTier = tier;
+  console.log('📱 Tier:', tier, '| RAM:', ram, 'GB | Cores:', cores);
 })();
 </script>
 </head>

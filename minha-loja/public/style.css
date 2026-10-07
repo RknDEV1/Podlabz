@@ -1317,3 +1317,66 @@ header {
 .modal-conteudo {
   animation: slideUpBounce .4s cubic-bezier(.34,1.56,.64,1);
 }
+
+/* ============================================
+   PERFORMANCE ADAPTATIVA (3 tiers)
+   ============================================ */
+
+/* ----- MID: liga animações leves, desliga pesadas ----- */
+html.device-mid .smoke-4,
+html.device-mid .smoke-5,
+html.device-mid .smoke-6 {
+  display: none !important;
+}
+html.device-mid .smoke {
+  filter: blur(60px) !important;
+  opacity: .08 !important;
+}
+html.device-mid .particles {
+  display: none !important;
+}
+html.device-mid .card .imagem {
+  transition: transform .3s ease !important;
+}
+
+/* ----- LOW: desliga TUDO que for pesado ----- */
+html.device-low .smoke-container,
+html.device-low .particles,
+html.device-low body::before {
+  display: none !important;
+}
+html.device-low .card::before {
+  display: none !important;
+}
+html.device-low .card:hover {
+  transform: none !important;
+  box-shadow: none !important;
+}
+html.device-low .card .imagem {
+  transition: none !important;
+}
+html.device-low .reveal {
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none !important;
+}
+html.device-low #progress-bar {
+  box-shadow: none !important;
+}
+
+/* ----- Efeitos que só rodam em MID/HIGH ----- */
+html.device-low .card.entrando {
+  animation: none !important;
+  opacity: 1 !important;
+}
+
+/* ----- Toque: highlight azul feio ----- */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ----- Otimização geral pra mobile ----- */
+@media (max-width: 768px) {
+  html.device-mid .smoke { animation-duration: 60s !important; }
+  html.device-mid .particles::before { animation-duration: 60s !important; }
+}
