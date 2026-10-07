@@ -5,10 +5,12 @@ const BASE = process.env.BUCKPAY_BASE_URL || 'https://api.realtechdev.com.br/v1'
 const TOKEN = process.env.BUCKPAY_TOKEN;
 const USER_AGENT = process.env.BUCKPAY_USER_AGENT || 'Buckpay API';
 
-async function criarCobranca({ pedidoId, itens, cliente }) {
-  const total = itens.reduce(
-    (s, i) => s + Math.round((i.preco_centavos * i.quantidade) / 1), 0
+async function criarCobranca({ pedidoId, itens, cliente, frete }) {
+  const totalItens = itens.reduce(
+    (s, i) => s + (i.preco_centavos * i.quantidade), 0
   );
+  const freteCentavos = frete && frete.preco ? Math.round(frete.preco * 100) : 0;
+  const total = totalItens + freteCentavos;
 
   // BuckPay exige mínimo de R$ 6,00
   if (total < 600) {

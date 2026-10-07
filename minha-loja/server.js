@@ -144,7 +144,7 @@ app.post('/api/pedidos', async (req, res) => {
     });
     inserirVarios(itensNormalizados);
 
-    const pagamento = await criarCobranca({ pedidoId, itens: itensNormalizados, cliente });
+    const pagamento = await criarCobranca({ pedidoId, itens: itensNormalizados, cliente, frete });
 
     db.prepare('UPDATE pedidos SET yuvex_payment_id = ? WHERE id = ?')
       .run(pagamento.id, pedidoId);
