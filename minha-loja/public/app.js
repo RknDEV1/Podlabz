@@ -909,3 +909,106 @@ window.addEventListener('load', function() {
     });
   }, 800);
 });
+
+// ============================================
+// SOCIAL PROOF — compras recentes
+// ============================================
+(function() {
+  if (window.deviceTier === 'low') return;
+
+  var nomes = ['Lucas S.', 'Maria F.', 'João P.', 'Ana C.', 'Pedro R.', 'Carla M.', 'Rafael T.', 'Juliana B.', 'Gabriel L.', 'Beatriz N.'];
+  var cidades = ['Aracaju-SE', 'Salvador-BA', 'Recife-PE', 'Maceió-AL', 'Fortaleza-CE', 'Natal-RN', 'São Paulo-SP', 'Rio de Janeiro-RJ', 'Belo Horizonte-MG', 'João Pessoa-PB'];
+  var produtosSocial = ['Pod Ignite V55', 'Elfbar BC15K', 'Pod Oxbar Magic Maze', 'Ignite V500', 'Black Sheep 55K', 'Elfbar 40K', 'Pod Xros 4'];
+
+  function criarNotificacao() {
+    var el = document.createElement('div');
+    el.className = 'social-proof';
+    el.innerHTML =
+      '<div class="social-proof-icon">🛒</div>' +
+      '<div class="social-proof-texto">' +
+        '<strong>' + nomes[Math.floor(Math.random()*nomes.length)] + ' • ' + cidades[Math.floor(Math.random()*cidades.length)] + '</strong>' +
+        'acabou de comprar ' + produtosSocial[Math.floor(Math.random()*produtosSocial.length)] +
+        '<span class="tempo">' + (Math.floor(Math.random()*15) + 1) + ' min atrás</span>' +
+      '</div>';
+    document.body.appendChild(el);
+    setTimeout(function() { el.classList.add('visivel'); }, 100);
+    setTimeout(function() {
+      el.classList.remove('visivel');
+      setTimeout(function() { el.remove(); }, 500);
+    }, 5000);
+  }
+
+  // Primeira aparece depois de 15s, depois a cada 40-70s
+  setTimeout(criarNotificacao, 15000);
+  setInterval(function() {
+    if (Math.random() > .5) criarNotificacao();
+  }, 45000);
+})();
+
+
+// ============================================
+// BADGES AUTOMÁTICOS
+// ============================================
+function adicionarBadges() {
+  var cards = document.querySelectorAll('.card:not(.com-badge)');
+  cards.forEach(function(card, i) {
+    card.classList.add('com-badge');
+    // Pega o preço pra decidir o badge
+    var precoEl = card.querySelector('.preco');
+    var preco = 0;
+    if (precoEl) {
+      preco = parseFloat(precoEl.textContent.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
+    }
+    var b = null;
+    if (i === 0) b = { cls: 'badge-top', txt: '🔥 Top #1' };
+    else if (i < 3) b = { cls: 'badge-promo', txt: '⚡ Popular' };
+    else if (preco >= 180) b = { cls: 'badge-novo', txt: '✨ Premium' };
+    if (b) {
+      var badge = document.createElement('div');
+      badge.className = 'badge-card ' + b.cls;
+      badge.textContent = b.txt;
+      card.appendChild(badge);
+    }
+  });
+}
+setTimeout(adicionarBadges, 800);
+setInterval(adicionarBadges, 2000);
+
+// ============================================
+// CONTADOR AO VIVO
+// ============================================
+(function() {
+  if (window.deviceTier === 'low') return;
+  if (window.matchMedia('(max-width: 640px)').matches) return;
+
+  var el = document.createElement('div');
+  el.className = 'live-counter';
+  el.innerHTML =
+    '<div class="live-linha"><span class="live-dot"></span> AO VIVO</div>' +
+    '<div class="live-linha">👀 <span class="live-numero" id="live-viewers">12</span> vendo</div>' +
+    '<div class="live-linha">📦 <span class="live-numero" id="live-orders">0</span> hoje</div>';
+
+  document.body.appendChild(el);
+  setTimeout(function() { el.classList.add('visivel'); }, 2000);
+
+  var viewers = 8 + Math.floor(Math.random() * 8);
+  var orders = Math.floor(Math.random() * 15);
+  var elV = document.getElementById('live-viewers');
+  var elO = document.getElementById('live-orders');
+  if (elV) elV.textContent = viewers;
+  if (elO) elO.textContent = orders;
+
+  setInterval(function() {
+    viewers += Math.floor(Math.random() * 3) - 1;
+    if (viewers < 3) viewers = 3;
+    if (viewers > 25) viewers = 25;
+    if (elV) elV.textContent = viewers;
+  }, 5000);
+
+  setInterval(function() {
+    if (Math.random() > .7) {
+      orders += 1;
+      if (elO) elO.textContent = orders;
+    }
+  }, 30000);
+})();
