@@ -1,0 +1,21 @@
+#scroll-bar{position:fixed;top:0;left:0;height:3px;width:0;z-index:100;background:linear-gradient(90deg,#8b5cf6,#06b6d4);box-shadow:0 0 12px rgba(139,92,246,.7)}
+header{transition:padding .3s,background .3s}
+header.encolhido{padding:.55rem 1.5rem;background:rgba(0,0,0,.88)}
+.card{--mx:50%;--my:50%;transform-style:preserve-3d;will-change:transform}
+.card.tilt{transition:transform .08s linear,border-color .3s,box-shadow .3s}
+.card::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;background:radial-gradient(260px circle at var(--mx) var(--my),rgba(139,92,246,.22),transparent 60%);opacity:0;transition:opacity .3s}
+.card:hover::after{opacity:1}
+#btn-carrinho.bump{animation:bump .45s cubic-bezier(.4,0,.2,1)}
+@keyframes bump{30%{transform:scale(1.18) rotate(-4deg)}60%{transform:scale(.95)}100%{transform:scale(1)}}
+#toast-box{position:fixed;bottom:1.2rem;left:50%;transform:translateX(-50%);z-index:200;display:flex;flex-direction:column;gap:.5rem;align-items:center;pointer-events:none}
+.toast{background:rgba(16,16,24,.95);border:1px solid #2a2a35;color:#f0f0f5;padding:.7rem 1.1rem;border-radius:100px;font-size:.88rem;font-weight:600;backdrop-filter:blur(12px);box-shadow:0 8px 30px rgba(139,92,246,.35);animation:toastIn .35s cubic-bezier(.4,0,.2,1)}
+.toast.sai{animation:toastOut .3s forwards}
+@keyframes toastIn{from{opacity:0;transform:translateY(16px) scale(.95)}}
+@keyframes toastOut{to{opacity:0;transform:translateY(10px)}}
+button{position:relative;overflow:hidden}
+.ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.35);pointer-events:none;transform:scale(0);animation:ripple .6s ease-out forwards}
+@keyframes ripple{to{transform:scale(4);opacity:0}}
+#topo{position:fixed;right:1rem;bottom:1rem;width:44px;height:44px;border-radius:50%;border:1px solid #2a2a35;background:rgba(16,16,24,.9);color:#fff;font-size:1.1rem;cursor:pointer;z-index:60;opacity:0;transform:translateY(10px);pointer-events:none;transition:all .3s}
+#topo.vis{opacity:1;transform:none;pointer-events:auto}
+#topo:hover{border-color:#8b5cf6;box-shadow:0 0 18px rgba(139,92,246,.5)}
+@media (prefers-reduced-motion:reduce){.card.tilt{transform:none!important}#btn-carrinho.bump,.toast,.ripple{animation:none}}

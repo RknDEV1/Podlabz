@@ -4,3 +4,7 @@ data/*.db-*
 .env
 .env.evolution
 *.log
+auth_whatsapp/
+backups/
+cloudflared-linux-amd64*
+*.bak
