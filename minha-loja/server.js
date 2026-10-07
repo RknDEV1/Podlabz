@@ -151,6 +151,7 @@ app.post('/api/pedidos', async (req, res) => {
 
     res.json({
       pedidoId,
+      total_centavos: total,
       paymentId: pagamento.id,
       pixCopiaECola: pagamento.pixCopyPaste || (pagamento.methodData && pagamento.methodData.pixCopyPaste) || null,
       qrCodeBase64: pagamento.qrCodeBase64 || (pagamento.methodData && pagamento.methodData.qrCodeBase64) || null

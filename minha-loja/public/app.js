@@ -207,6 +207,18 @@ if(fC) fC.onsubmit = async function(e){
     var qr = document.getElementById('qrcode-img'); if(qr && d.qrCodeBase64) qr.src = d.qrCodeBase64.indexOf('data:')===0 ? d.qrCodeBase64 : 'data:image/png;base64,'+d.qrCodeBase64;
     var px = document.getElementById('pix-copia-cola'); if(px) px.value = d.pixCopiaECola||'';
     var mp = document.getElementById('modal-pix'); if(mp) mp.classList.remove('escondido');
+    
+    // Mostra o valor total no modal Pix
+    var valorEl = document.getElementById('valor-pix');
+    var detalheEl = document.getElementById('detalhe-pix');
+    if (valorEl) {
+      var totalPix = d.total_centavos || (d.total) || 0;
+      valorEl.textContent = brl(totalPix);
+    }
+    if (detalheEl && freteAtual) {
+      var subtotal = totalPix - Math.round(freteAtual.preco * 100);
+      detalheEl.textContent = 'Produtos ' + brl(subtotal) + ' + Frete ' + brl(freteAtual.preco * 100);
+    }
     if(pollingId) clearInterval(pollingId);
     pollingId = setInterval(async function(){
       var rr = await fetch('/api/pedidos/'+d.pedidoId); var dd = await rr.json();
