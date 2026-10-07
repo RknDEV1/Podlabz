@@ -7,6 +7,21 @@
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://i.ibb.co">
   <link rel="dns-prefetch" href="https://i.ibb.co">
+<script>
+// Detecta capacidade do dispositivo e aplica classe no body
+(function() {
+  var tier = 'mid';
+  var cores = navigator.hardwareConcurrency || 4;
+  var ram = navigator.deviceMemory || 4;
+  var conn = navigator.connection || {};
+  var slow = conn.saveData || /2g|slow-2g/.test(conn.effectiveType || '');
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce || slow || cores <= 2 || ram <= 2) tier = 'low';
+  else if (cores >= 8 && ram >= 8) tier = 'high';
+  document.documentElement.classList.add('device-' + tier);
+  window.deviceTier = tier;
+})();
+</script>
 </head>
 <body>
 <!-- Fumaça e partículas de fundo -->
@@ -115,6 +130,30 @@
       <button id="btn-fechar-sabor" class="btn-secundario">Cancelar</button>
     </div>
   </div>
+
+<button class="btn-som" id="btn-som" title="Ativar som" aria-label="Som">🔇</button>
+<button class="btn-flutuante" id="btn-whats" title="Fale conosco" aria-label="WhatsApp">💬</button>
+
+<div class="modal-whats escondido" id="modal-whats">
+  <div class="modal-whats-box">
+    <button class="modal-whats-fechar" id="fechar-whats">✕</button>
+    <div class="modal-whats-logo">PODLABZ</div>
+    <h3>Fale com a gente</h3>
+    <p class="modal-whats-sub">Escolha o canal ideal</p>
+
+    <a class="whats-principal" id="whats-principal" href="#" target="_blank">
+      <span class="whats-emoji">💬</span>
+      <div>
+        <strong id="whats-principal-label">Atendimento geral</strong>
+        <small>Resposta em até 5 min</small>
+      </div>
+    </a>
+
+    <button class="whats-mais" id="whats-mais">Ver outros números ▾</button>
+
+    <div class="whats-lista escondido" id="whats-lista"></div>
+  </div>
+</div>
 
 </body>
 </html>

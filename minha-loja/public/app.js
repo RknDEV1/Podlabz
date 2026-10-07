@@ -276,3 +276,213 @@ document.addEventListener('click', function(e){
     if(m2) m2.classList.add('escondido');
   }
 });
+
+// ============================================
+// MODO VAPOR (#13) — ativa ao abrir modal
+// ============================================
+var _abrirModalOriginal = null;
+document.addEventListener('click', function(e) {
+  if (e.target && e.target.id === 'btn-carrinho') {
+    if (window.deviceTier !== 'low') document.body.classList.add('modo-vapor');
+  }
+  if (e.target && (e.target.id === 'fechar' || e.target.closest('.modal'))) {
+    setTimeout(function() {
+      var abertos = document.querySelectorAll('.modal:not(.escondido)');
+      if (abertos.length === 0) document.body.classList.remove('modo-vapor');
+    }, 100);
+  }
+});
+
+// ============================================
+// BOTÃO WHATSAPP FLUTUANTE (#15)
+// ============================================
+var btnWhats = document.getElementById('btn-whats');
+if (btnWhats) {
+  btnWhats.onclick = function() {
+    var numero = '5579988626620'; // SEU número com DDI
+    var msg = encodeURIComponent('Oi! Vim do site Podlabz e quero saber mais sobre os pods.');
+    window.open('https://wa.me/' + numero + '?text=' + msg, '_blank');
+  };
+}
+
+// ============================================
+// SONS SUTIS (#14)
+// ============================================
+var somAtivo = localStorage.getItem('som-ativo') === 'sim';
+var btnSom = document.getElementById('btn-som');
+
+function tocarSom(tipo) {
+  if (!somAtivo || window.deviceTier === 'low') return;
+  try {
+    var ctx = new (window.AudioContext || window.webkitAudioContext)();
+    var osc = ctx.createOscillator();
+    var gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    if (tipo === 'add') { osc.frequency.value = 880; gain.gain.value = 0.08; }
+    else if (tipo === 'remove') { osc.frequency.value = 400; gain.gain.value = 0.06; }
+    else if (tipo === 'pix') { osc.frequency.value = 1200; gain.gain.value = 0.1; }
+    osc.type = 'sine';
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.15);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.15);
+  } catch(e) {}
+}
+
+if (btnSom) {
+  if (somAtivo) btnSom.classList.add('ativo');
+  btnSom.textContent = somAtivo ? '🔊' : '🔇';
+  btnSom.onclick = function() {
+    somAtivo = !somAtivo;
+    localStorage.setItem('som-ativo', somAtivo ? 'sim' : 'nao');
+    btnSom.textContent = somAtivo ? '🔊' : '🔇';
+    btnSom.classList.toggle('ativo', somAtivo);
+    if (somAtivo) tocarSom('add');
+  };
+}
+
+// Hook nos botões de adicionar
+document.addEventListener('click', function(e) {
+  if (e.target && e.target.classList && e.target.classList.contains('btn-add')) tocarSom('add');
+  if (e.target && e.target.id === 'btn-confirmar-sabor') tocarSom('add');
+  if (e.target && (e.target.id === 'btn-copiar')) tocarSom('pix');
+});
+
+// ============================================
+// MODO VAPOR (#13) — ativa ao abrir modal
+// ============================================
+var _abrirModalOriginal = null;
+document.addEventListener('click', function(e) {
+  if (e.target && e.target.id === 'btn-carrinho') {
+    if (window.deviceTier !== 'low') document.body.classList.add('modo-vapor');
+  }
+  if (e.target && (e.target.id === 'fechar' || e.target.closest('.modal'))) {
+    setTimeout(function() {
+      var abertos = document.querySelectorAll('.modal:not(.escondido)');
+      if (abertos.length === 0) document.body.classList.remove('modo-vapor');
+    }, 100);
+  }
+});
+
+// ============================================
+// BOTÃO WHATSAPP FLUTUANTE (#15)
+// ============================================
+var btnWhats = document.getElementById('btn-whats');
+if (btnWhats) {
+  btnWhats.onclick = function() {
+    var numero = '5579988626620'; // SEU número com DDI
+    var msg = encodeURIComponent('Oi! Vim do site Podlabz e quero saber mais sobre os pods.');
+    window.open('https://wa.me/' + numero + '?text=' + msg, '_blank');
+  };
+}
+
+// ============================================
+// SONS SUTIS (#14)
+// ============================================
+var somAtivo = localStorage.getItem('som-ativo') === 'sim';
+var btnSom = document.getElementById('btn-som');
+
+function tocarSom(tipo) {
+  if (!somAtivo || window.deviceTier === 'low') return;
+  try {
+    var ctx = new (window.AudioContext || window.webkitAudioContext)();
+    var osc = ctx.createOscillator();
+    var gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    if (tipo === 'add') { osc.frequency.value = 880; gain.gain.value = 0.08; }
+    else if (tipo === 'remove') { osc.frequency.value = 400; gain.gain.value = 0.06; }
+    else if (tipo === 'pix') { osc.frequency.value = 1200; gain.gain.value = 0.1; }
+    osc.type = 'sine';
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.15);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.15);
+  } catch(e) {}
+}
+
+if (btnSom) {
+  if (somAtivo) btnSom.classList.add('ativo');
+  btnSom.textContent = somAtivo ? '🔊' : '🔇';
+  btnSom.onclick = function() {
+    somAtivo = !somAtivo;
+    localStorage.setItem('som-ativo', somAtivo ? 'sim' : 'nao');
+    btnSom.textContent = somAtivo ? '🔊' : '🔇';
+    btnSom.classList.toggle('ativo', somAtivo);
+    if (somAtivo) tocarSom('add');
+  };
+}
+
+// Hook nos botões de adicionar
+document.addEventListener('click', function(e) {
+  if (e.target && e.target.classList && e.target.classList.contains('btn-add')) tocarSom('add');
+  if (e.target && e.target.id === 'btn-confirmar-sabor') tocarSom('add');
+  if (e.target && (e.target.id === 'btn-copiar')) tocarSom('pix');
+});
+
+// ============================================
+// WHATSAPP — Opção C (principal + outros)
+// ============================================
+var WHATS_NUMEROS = [
+  { numero: '5579988626620', label: 'Rakinin',    desc: 'Atendimento geral', icon: '💬' },
+  { numero: '5579998554841', label: 'Guido',      desc: 'Vendas',            icon: '🛒' },
+  { numero: '5579998381703', label: 'Gabrielle',  desc: 'Suporte',           icon: '🛠️' },
+  { numero: '5579999118217', label: 'Yasmin',     desc: 'Entregas',          icon: '🚚' }
+];
+
+var btnWhats = document.getElementById('btn-whats');
+var modalWhats = document.getElementById('modal-whats');
+var fecharWhats = document.getElementById('fechar-whats');
+var btnMais = document.getElementById('whats-mais');
+var listaWhats = document.getElementById('whats-lista');
+var linkPrincipal = document.getElementById('whats-principal');
+var labelPrincipal = document.getElementById('whats-principal-label');
+
+// Configura o principal (primeiro da lista)
+function montarPrincipal() {
+  var p = WHATS_NUMEROS[0];
+  var msg = encodeURIComponent('Oi! Vim do site Podlabz e quero saber mais.');
+  linkPrincipal.href = 'https://wa.me/' + p.numero + '?text=' + msg;
+  if (labelPrincipal) labelPrincipal.textContent = p.label;
+}
+
+// Monta a lista de "outros"
+function montarOutros() {
+  var outros = WHATS_NUMEROS.slice(1);
+  listaWhats.innerHTML = outros.map(function(w) {
+    var msg = encodeURIComponent('Oi! Vim do site Podlabz (' + w.label + ')');
+    return '<a class="whats-item" href="https://wa.me/' + w.numero + '?text=' + msg + '" target="_blank">' +
+      '<span class="icon">' + w.icon + '</span>' +
+      '<div><strong>' + w.label + '</strong><small>' + w.desc + '</small></div>' +
+      '</a>';
+  }).join('');
+}
+
+if (btnWhats && modalWhats) {
+  montarPrincipal();
+  montarOutros();
+
+  btnWhats.onclick = function() {
+    modalWhats.classList.remove('escondido');
+    listaWhats.classList.add('escondido');
+    btnMais.textContent = 'Ver outros números ▾';
+  };
+
+  fecharWhats.onclick = function() {
+    modalWhats.classList.add('escondido');
+  };
+
+  modalWhats.onclick = function(e) {
+    if (e.target === modalWhats) modalWhats.classList.add('escondido');
+  };
+
+  btnMais.onclick = function() {
+    var estaEscondido = listaWhats.classList.contains('escondido');
+    if (estaEscondido) {
+      listaWhats.classList.remove('escondido');
+      btnMais.textContent = 'Esconder ▴';
+    } else {
+      listaWhats.classList.add('escondido');
+      btnMais.textContent = 'Ver outros números ▾';
+    }
+  };
+}
