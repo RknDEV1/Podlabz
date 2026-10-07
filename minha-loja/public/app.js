@@ -863,3 +863,49 @@ window.soltarConfetes = function() {
     })(i);
   }
 };
+
+// ============================================
+// HERO — botões
+// ============================================
+document.addEventListener('click', function(e) {
+  if (!e.target) return;
+
+  // Botão WhatsApp do hero
+  var btnWhatsHero = e.target.closest('#hero-whats');
+  if (btnWhatsHero) {
+    if (typeof WHATS_NUMEROS !== 'undefined' && WHATS_NUMEROS.length) {
+      var w = WHATS_NUMEROS[0];
+      var msg = encodeURIComponent('Oi! Vim do site Podlabz e quero saber mais.');
+      window.open('https://wa.me/' + w.numero + '?text=' + msg, '_blank');
+    }
+    return;
+  }
+
+  // Link "Explorar catálogo" — scroll suave
+  var linkCatalogo = e.target.closest('.btn-hero-primario');
+  if (linkCatalogo) {
+    e.preventDefault();
+    var alvo = document.getElementById('produtos') || document.querySelector('main');
+    if (alvo) {
+      alvo.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+});
+
+// Anima os números das stats quando aparecem
+window.addEventListener('load', function() {
+  if (window.deviceTier === 'low') return;
+  var stats = document.querySelectorAll('.stat-item strong');
+  if (!stats.length) return;
+  setTimeout(function() {
+    stats.forEach(function(el, i) {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(10px)';
+      el.style.transition = 'all .5s ease';
+      setTimeout(function() {
+        el.style.opacity = '1';
+        el.style.transform = 'translateY(0)';
+      }, i * 150);
+    });
+  }, 800);
+});
