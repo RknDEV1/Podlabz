@@ -1,5 +1,8 @@
 require('dotenv').config();
 const express = require('express');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 const compression = require('compression');
 const path = require('path');
 const crypto = require('crypto');
@@ -39,6 +42,7 @@ app.post('/webhook/buckpay', express.json(), async (req, res) => {
 });
 
 /* ---------- MIDDLEWARES ---------- */
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: '7d', etag: true }));
 
@@ -201,27 +205,26 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'podlabz123';
 const adminTokens = new Set();
 
 function authAdmin(req, res, next) {
-  const token = (req.headers.authorization || '').replace('Bearer ', '');
-  if (!token || !adminTokens.has(token)) return res.status(401).json({ erro: 'Não autorizado' });
+  if (!req.cookies || req.cookies.admin_auth !== 'ok') {
+    return res.status(401).json({ erro: 'Nao autenticado' });
+  }
+  req.user = { role: 'admin' };
   next();
 }
 
-app.post('/api/admin/login', (req, res) => {
-  if (req.body.senha !== ADMIN_PASSWORD) return res.status(401).json({ erro: 'Senha incorreta' });
-  const token = crypto.randomBytes(24).toString('hex');
-  adminTokens.add(token);
-  res.json({ token });
-});
 
-app.post('/api/admin/logout', authAdmin, (req, res) => {
-  const token = (req.headers.authorization || '').replace('Bearer ', '');
-  adminTokens.delete(token);
-  res.json({ ok: true });
-});
 
-app.get('/api/admin/pedidos', authAdmin, (_req, res) => {
-  res.json(db.prepare('SELECT * FROM pedidos ORDER BY id DESC').all());
-});
+
+
+
+
+
+// CADASTRO (primeiro vira admin; depois so admin logado cria)
+
+
+
+
+
 
 app.get('/api/admin/pedidos/:id', authAdmin, (req, res) => {
   const p = db.prepare('SELECT * FROM pedidos WHERE id = ?').get(req.params.id);
@@ -261,6 +264,57 @@ app.delete('/api/admin/produtos/:id', authAdmin, (req, res) => {
 
 app.get('/admin', (_req, res) => res.type('html').sendFile(path.join(__dirname, 'public', 'admin.html')));
 
+
+/* ============================================
+   ADMIN
+   ============================================ */
+const JWT_SECRET = process.env.ADMIN_JWT_SECRET || 'troque-esse-secret-agora-32chars';
+
+function authAdmin(req, res, next) {
+  try {
+    const token = req.cookies.admin_token;
+    if (!token) return res.status(401).json({ erro: 'Nao autenticado' });
+    const payload = jwt.verify(token, JWT_SECRET);
+    const u = db.prepare('SELECT id, nome, email, role, ativo FROM usuarios WHERE id = ?').get(payload.id);
+    if (!u || !u.ativo) return res.status(401).json({ erro: 'Usuario inativo' });
+    req.user = u;
+    next();
+  } catch(e) {
+    res.clearCookie('admin_token');
+    res.status(401).json({ erro: 'Sessao expirada' });
+  }
+}
+
+// LOGIN
+
+
+// CADASTRO (primeiro vira admin; depois disso, so admin logado pode criar)
+
+
+
+
+
+app.get('/api/admin/pedidos/:id', authAdmin, (req, res) => {
+  const p = db.prepare('SELECT * FROM pedidos WHERE id = ?').get(req.params.id);
+  if (!p) return res.status(404).json({ erro: 'Nao encontrado' });
+  p.itens = db.prepare('SELECT * FROM pedido_itens WHERE pedido_id = ?').all(p.id);
+  res.json(p);
+});
+app.patch('/api/admin/pedidos/:id', authAdmin, (req, res) => {
+  const validos = ['pendente','pago','enviado','cancelado'];
+  if (!validos.includes(req.body.status)) return res.status(400).json({ erro: 'Status invalido' });
+  db.prepare('UPDATE pedidos SET status = ? WHERE id = ?').run(req.body.status, req.params.id);
+  res.json({ ok: true });
+});
+
+// PRODUTOS
+app.get('/api/admin/produtos', authAdmin, (_req, res) => {
+  res.json(db.prepare('SELECT * FROM produtos ORDER BY id DESC').all());
+});
+
+app.get('/admin', (_req, res) => res.type('html').sendFile(path.join(__dirname, 'public', 'admin.html')));
+
+
 const PORT = process.env.PORT || 3000;
 app.post('/api/meus-pedidos', (req, res) => {
   const email = (req.body && req.body.email) || '';
@@ -283,5 +337,44 @@ app.post('/api/frete', async (req, res) => {
     res.status(500).json({ erro: 'Falha ao calcular' });
   }
 });
+
+/* ============================================
+   ADMIN — Login por senha única
+   ============================================ */
+const ADMIN_SENHA = process.env.ADMIN_PASSWORD || 'podlabz2026';
+
+function authAdmin(req, res, next) {
+  if (!req.cookies || req.cookies.admin_auth !== 'ok') {
+    return res.status(401).json({ erro: 'Nao autenticado' });
+  }
+  req.user = { role: 'admin' };
+  next();
+}
+
+app.post('/api/admin/login', (req, res) => {
+  const { senha } = req.body || {};
+  if (!senha || senha !== ADMIN_SENHA) {
+    return res.status(401).json({ erro: 'Senha incorreta' });
+  }
+  res.cookie('admin_auth', 'ok', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: 8 * 60 * 60 * 1000
+  });
+  res.json({ ok: true });
+});
+
+app.post('/api/admin/logout', (req, res) => {
+  res.clearCookie('admin_auth');
+  res.json({ ok: true });
+});
+
+app.get('/api/admin/me', (req, res) => {
+  if (req.cookies && req.cookies.admin_auth === 'ok') return res.json({ ok: true });
+  res.status(401).json({ erro: 'Nao autenticado' });
+});
+
+app.get('/admin', (_req, res) => res.type('html').sendFile(path.join(__dirname, 'public', 'admin.html')));
 
 app.listen(PORT, () => console.log(`🚀 Loja rodando em http://localhost:${PORT}`));
