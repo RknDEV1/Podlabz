@@ -1748,76 +1748,6 @@ html.device-low .hero-produto img { animation: none; }
 html.device-low .hero-titulo .linha { animation: none; opacity: 1; }
 
 /* ============================================
-   NOTIFICAÇÃO SOCIAL PROOF
-   ============================================ */
-.social-proof {
-  position: fixed;
-  bottom: 20px;
-  left: 20px;
-  background: linear-gradient(135deg, #0d0d12, #08080c);
-  border: 1px solid var(--borda-hover);
-  border-radius: 14px;
-  padding: .75rem 1rem .75rem .75rem;
-  display: flex;
-  align-items: center;
-  gap: .75rem;
-  z-index: 90;
-  box-shadow: 0 10px 30px rgba(0,0,0,.7), 0 0 20px rgba(37,211,102,.15);
-  max-width: 320px;
-  transform: translateX(-120%);
-  transition: transform .5s cubic-bezier(.34,1.56,.64,1), opacity .3s ease;
-  opacity: 0;
-}
-.social-proof.visivel {
-  transform: translateX(0);
-  opacity: 1;
-}
-.social-proof-icon {
-  width: 40px;
-  height: 40px;
-  min-width: 40px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, var(--roxo), var(--ciano));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
-  box-shadow: 0 0 15px rgba(139,92,246,.5);
-}
-.social-proof-texto {
-  font-size: .78rem;
-  line-height: 1.35;
-  color: var(--texto-suave);
-}
-.social-proof-texto strong {
-  color: var(--branco);
-  font-weight: 700;
-  display: block;
-}
-.social-proof-texto .tempo {
-  color: #25d366;
-  font-size: .7rem;
-  display: inline-flex;
-  align-items: center;
-  gap: .25rem;
-  margin-top: .15rem;
-}
-.social-proof-texto .tempo::before {
-  content: '';
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #25d366;
-  box-shadow: 0 0 8px #25d366;
-  animation: pulseVerde 1.5s infinite;
-}
-@keyframes pulseVerde {
-  0%, 100% { opacity: 1; }
-  50%      { opacity: .3; }
-}
-html.device-low .social-proof { display: none; }
-
-/* ============================================
    CARD HOLOGRÁFICO
    ============================================ */
 .card {
@@ -1938,6 +1868,10 @@ html.device-low .card::after { display: none; }
   color: var(--branco);
   font-weight: 800;
   font-family: ui-monospace, monospace;
+}
+@keyframes pulseVerde {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: .3; }
 }
 @media (max-width: 640px) {
   .live-counter { display: none; }

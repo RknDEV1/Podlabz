@@ -911,42 +911,6 @@ window.addEventListener('load', function() {
 });
 
 // ============================================
-// SOCIAL PROOF — compras recentes
-// ============================================
-(function() {
-  if (window.deviceTier === 'low') return;
-
-  var nomes = ['Lucas S.', 'Maria F.', 'João P.', 'Ana C.', 'Pedro R.', 'Carla M.', 'Rafael T.', 'Juliana B.', 'Gabriel L.', 'Beatriz N.'];
-  var cidades = ['Aracaju-SE', 'Salvador-BA', 'Recife-PE', 'Maceió-AL', 'Fortaleza-CE', 'Natal-RN', 'São Paulo-SP', 'Rio de Janeiro-RJ', 'Belo Horizonte-MG', 'João Pessoa-PB'];
-  var produtosSocial = ['Pod Ignite V55', 'Elfbar BC15K', 'Pod Oxbar Magic Maze', 'Ignite V500', 'Black Sheep 55K', 'Elfbar 40K', 'Pod Xros 4'];
-
-  function criarNotificacao() {
-    var el = document.createElement('div');
-    el.className = 'social-proof';
-    el.innerHTML =
-      '<div class="social-proof-icon">🛒</div>' +
-      '<div class="social-proof-texto">' +
-        '<strong>' + nomes[Math.floor(Math.random()*nomes.length)] + ' • ' + cidades[Math.floor(Math.random()*cidades.length)] + '</strong>' +
-        'acabou de comprar ' + produtosSocial[Math.floor(Math.random()*produtosSocial.length)] +
-        '<span class="tempo">' + (Math.floor(Math.random()*15) + 1) + ' min atrás</span>' +
-      '</div>';
-    document.body.appendChild(el);
-    setTimeout(function() { el.classList.add('visivel'); }, 100);
-    setTimeout(function() {
-      el.classList.remove('visivel');
-      setTimeout(function() { el.remove(); }, 500);
-    }, 5000);
-  }
-
-  // Primeira aparece depois de 15s, depois a cada 40-70s
-  setTimeout(criarNotificacao, 15000);
-  setInterval(function() {
-    if (Math.random() > .5) criarNotificacao();
-  }, 45000);
-})();
-
-
-// ============================================
 // BADGES AUTOMÁTICOS
 // ============================================
 function adicionarBadges() {
